@@ -11,6 +11,8 @@ import {MdDialogContainer} from './dialog-container';
 import {TemplatePortal} from '../core/portal/portal';
 import 'rxjs/add/operator/first';
 
+//test
+
 
 /**
  * Service to open Material Design modal dialogs.
