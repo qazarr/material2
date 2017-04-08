@@ -293,6 +293,13 @@ describe('MdAutocomplete', () => {
       });
     }));
 
+    it('should animate the placeholder when the input is focused', () => {
+      dispatchFakeEvent(fixture.debugElement.query(By.css('input')).nativeElement, 'focus');
+
+      expect(fixture.componentInstance.inputContainer.floatPlaceholder)
+          .toBe('auto', 'Expected placeholder to be animated on focus.');
+    });
+
   });
 
   it('should have the correct text direction in RTL', () => {

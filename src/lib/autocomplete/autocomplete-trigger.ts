@@ -57,7 +57,7 @@ export const MD_AUTOCOMPLETE_VALUE_ACCESSOR: any = {
     '[attr.aria-activedescendant]': 'activeOption?.id',
     '[attr.aria-expanded]': 'panelOpen.toString()',
     '[attr.aria-owns]': 'autocomplete?.id',
-    '(focus)': 'openPanel()',
+    '(focus)': '_handleFocus()',
     '(blur)': '_handleBlur($event.relatedTarget?.tagName)',
     '(input)': '_handleInput($event)',
     '(keydown)': '_handleKeydown($event)',
@@ -119,21 +119,8 @@ export class MdAutocompleteTrigger implements ControlValueAccessor, OnDestroy {
 
   /** Opens the autocomplete suggestion panel. */
   openPanel(): void {
-    if (!this._overlayRef) {
-      this._createOverlay();
-    } else {
-      /** Update the panel width, in case the host width has changed */
-      this._overlayRef.getState().width = this._getHostWidth();
-    }
-
-    if (!this._overlayRef.hasAttached()) {
-      this._overlayRef.attach(this._portal);
-      this._subscribeToClosingActions();
-    }
-
-    this.autocomplete._setVisibility();
+    this._attachOverlay();
     this._floatPlaceholder();
-    this._panelOpen = true;
   }
 
   /** Closes the autocomplete suggestion panel. */
@@ -234,14 +221,23 @@ export class MdAutocompleteTrigger implements ControlValueAccessor, OnDestroy {
     }
   }
 
+  _handleFocus(): void {
+    this._attachOverlay();
+    this._floatPlaceholder(true);
+  }
+
   /**
    * In "auto" mode, the placeholder will animate down as soon as focus is lost.
    * This causes the value to jump when selecting an option with the mouse.
    * This method manually floats the placeholder until the panel can be closed.
+   * @param shouldAnimate Whether the placeholder should be animated when it is floated.
    */
-  private _floatPlaceholder(): void {
+  private _floatPlaceholder(shouldAnimate = false): void {
     if (this._inputContainer && this._inputContainer.floatPlaceholder === 'auto') {
-      this._inputContainer.floatPlaceholder = 'always';
+      if (!shouldAnimate) {
+        this._inputContainer.floatPlaceholder = 'always';
+      }
+
       this._manuallyFloatingPlaceholder = true;
     }
   }
@@ -327,9 +323,22 @@ export class MdAutocompleteTrigger implements ControlValueAccessor, OnDestroy {
     });
   }
 
-  private _createOverlay(): void {
-    this._portal = new TemplatePortal(this.autocomplete.template, this._viewContainerRef);
-    this._overlayRef = this._overlay.create(this._getOverlayConfig());
+  private _attachOverlay(): void {
+    if (!this._overlayRef) {
+      this._portal = new TemplatePortal(this.autocomplete.template, this._viewContainerRef);
+      this._overlayRef = this._overlay.create(this._getOverlayConfig());
+    } else {
+      // Update the panel width, in case the host width has changed.
+      this._overlayRef.getState().width = this._getHostWidth();
+    }
+
+    if (!this._overlayRef.hasAttached()) {
+      this._overlayRef.attach(this._portal);
+      this._subscribeToClosingActions();
+    }
+
+    this.autocomplete._setVisibility();
+    this._panelOpen = true;
   }
 
   private _getOverlayConfig(): OverlayState {
