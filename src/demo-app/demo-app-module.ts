@@ -78,6 +78,7 @@ import {
   StyleModule
 } from '@angular/material';
 import {TableHeaderDemo} from './data-table/table-header-demo';
+import {ConnectedOverlayDemo, DemoOverlay} from './connected-overlay/connected-overlay-demo';
 
 /**
  * NgModule that includes all Material modules that are required to serve the demo-app.
@@ -131,6 +132,8 @@ export class DemoMaterialModule {}
     DemoMaterialModule,
   ],
   declarations: [
+    ConnectedOverlayDemo,
+    DemoOverlay,
     AutocompleteDemo,
     BaselineDemo,
     ButtonDemo,
@@ -186,6 +189,7 @@ export class DemoMaterialModule {}
     PeopleDatabase
   ],
   entryComponents: [
+    DemoOverlay,
     DemoApp,
     JazzDialog,
     ContentElementDialog,
