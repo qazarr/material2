@@ -157,9 +157,9 @@ export class BetterConnectedPositionStrategy implements PositionStrategy {
       this._viewportRect = this._viewportRuler.getViewportRect();
 
       // DEBUG
-      element.style.position = 'static';
+      element.style.position = 'absolute';
       element.style.maxHeight = '100%';
-
+      element.style.overflow = 'auto';
     }
 
     const originRect = this._originRect;
@@ -190,14 +190,14 @@ export class BetterConnectedPositionStrategy implements PositionStrategy {
 
       // If the overlay, without any further work, fits into the viewport, use this position.
       if (overlayFit.isCompletelyWithinViewport) {
-        this._applyPosition(element, pos, overlayPoint,originPoint, viewportRect);
+        this._applyPosition(element, pos, overlayPoint, originPoint, viewportRect);
         return;
       }
 
       // If the overlay has flexible dimensions, we can use this position so long as there's enough
       // space for the minimum dimensions.
       if (this._canFitWithFlexibleDimensions(overlayFit, overlayPoint, viewportRect)) {
-        this._applyPosition(element, pos, overlayPoint,originPoint, viewportRect);
+        this._applyPosition(element, pos, overlayPoint, originPoint, viewportRect);
         return;
       }
 
@@ -446,7 +446,7 @@ export class BetterConnectedPositionStrategy implements PositionStrategy {
       position: ConnectionPositionPair,
       overlayPoint: Point,
       originPoint: Point,
-      //overlayRect: ClientRect,
+      // overlayRect: ClientRect,
       viewport: ClientRect) {
     // this._setElementPositionStyles(element, overlayRect, point, position);
     this._setFlexWrapperStyles(overlayPoint, originPoint, position, viewport);
@@ -464,7 +464,7 @@ export class BetterConnectedPositionStrategy implements PositionStrategy {
       _overlayPoint: Point,
       originPoint: Point,
       position: ConnectionPositionPair,
-      //overlay: ClientRect,
+      // overlay: ClientRect,
       viewport: ClientRect): void {
     let style = {} as CSSStyleDeclaration;
 
@@ -480,9 +480,8 @@ export class BetterConnectedPositionStrategy implements PositionStrategy {
       // ??? ugh centering
     }
 
-    if (position.overlayX === 'end') {
-      style.justifyContent = 'flex-end';
-    }
+    this._pane.style[position.overlayX === 'end' ? 'right' : 'left'] =
+    this._pane.style[position.overlayY === 'bottom' ? 'bottom' : 'top'] = '0';
 
     // I.e., overlay is opening "right-ward"
     const isBoundedByRightViewportEdge =
@@ -664,7 +663,6 @@ export class BetterConnectedPositionStrategy implements PositionStrategy {
     wrapper.classList.add('debug-wrapper');
     wrapper.style.position = 'absolute';
     wrapper.style.zIndex = '1000';
-    wrapper.style.display = 'flex';
     return wrapper;
   }
 
