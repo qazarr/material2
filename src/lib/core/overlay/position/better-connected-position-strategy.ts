@@ -159,7 +159,7 @@ export class BetterConnectedPositionStrategy implements PositionStrategy {
       // DEBUG
       element.style.position = 'static';
       element.style.maxHeight = '100%';
-
+      element.style.display = 'flex';
     }
 
     const originRect = this._originRect;
@@ -480,9 +480,8 @@ export class BetterConnectedPositionStrategy implements PositionStrategy {
       // ??? ugh centering
     }
 
-    if (position.overlayX === 'end') {
-      style.justifyContent = 'flex-end';
-    }
+    style.justifyContent = position.overlayX === 'end' ? 'flex-end' : 'flex-start';
+    style.alignItems = position.overlayY === 'bottom' ? 'flex-end' : 'flex-start';
 
     // I.e., overlay is opening "right-ward"
     const isBoundedByRightViewportEdge =
