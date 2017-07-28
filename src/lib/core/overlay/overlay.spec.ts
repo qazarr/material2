@@ -1,4 +1,4 @@
-import {inject, TestBed, async, ComponentFixture} from '@angular/core/testing';
+import {inject, TestBed, async, ComponentFixture, fakeAsync, tick} from '@angular/core/testing';
 import {NgModule, Component, ViewChild, ViewContainerRef} from '@angular/core';
 import {TemplatePortalDirective, PortalModule} from '../portal/portal-directives';
 import {TemplatePortal, ComponentPortal} from '../portal/portal';
@@ -43,29 +43,33 @@ describe('Overlay', () => {
     viewContainerFixture = fixture;
   }));
 
-  it('should load a component into an overlay', () => {
+  it('should load a component into an overlay', fakeAsync(() => {
     let overlayRef = overlay.create();
     overlayRef.attach(componentPortal);
 
     expect(overlayContainerElement.textContent).toContain('Pizza');
 
     overlayRef.dispose();
+    tick();
+
     expect(overlayContainerElement.childNodes.length).toBe(0);
     expect(overlayContainerElement.textContent).toBe('');
-  });
+  }));
 
-  it('should load a template portal into an overlay', () => {
+  it('should load a template portal into an overlay', fakeAsync(() => {
     let overlayRef = overlay.create();
     overlayRef.attach(templatePortal);
 
     expect(overlayContainerElement.textContent).toContain('Cake');
 
     overlayRef.dispose();
+    tick();
+
     expect(overlayContainerElement.childNodes.length).toBe(0);
     expect(overlayContainerElement.textContent).toBe('');
-  });
+  }));
 
-  it('should disable pointer events of the pane element if detached', () => {
+  it('should disable pointer events of the pane element if detached', fakeAsync(() => {
     let overlayRef = overlay.create();
     let paneElement = overlayRef.overlayElement;
 
@@ -77,13 +81,14 @@ describe('Overlay', () => {
       .toBe('auto', 'Expected the overlay pane to enable pointerEvents when attached.');
 
     overlayRef.detach();
+    tick();
 
     expect(paneElement.childNodes.length).toBe(0);
     expect(paneElement.style.pointerEvents)
       .toBe('none', 'Expected the overlay pane to disable pointerEvents when detached.');
-  });
+  }));
 
-  it('should open multiple overlays', () => {
+  it('should open multiple overlays', fakeAsync(() => {
     let pizzaOverlayRef = overlay.create();
     pizzaOverlayRef.attach(componentPortal);
 
@@ -95,15 +100,17 @@ describe('Overlay', () => {
     expect(overlayContainerElement.textContent).toContain('Cake');
 
     pizzaOverlayRef.dispose();
+    tick();
     expect(overlayContainerElement.childNodes.length).toBe(1);
     expect(overlayContainerElement.textContent).toContain('Cake');
 
     cakeOverlayRef.dispose();
+    tick();
     expect(overlayContainerElement.childNodes.length).toBe(0);
     expect(overlayContainerElement.textContent).toBe('');
-  });
+  }));
 
-  it('should ensure that the most-recently-attached overlay is on top', () => {
+  it('should ensure that the most-recently-attached overlay is on top', fakeAsync(() => {
     let pizzaOverlayRef = overlay.create();
     let cakeOverlayRef = overlay.create();
 
@@ -116,7 +123,10 @@ describe('Overlay', () => {
         .toBeFalsy('Expected cake to be on top.');
 
     pizzaOverlayRef.dispose();
+    tick();
+
     cakeOverlayRef.detach();
+    tick();
 
     pizzaOverlayRef = overlay.create();
     pizzaOverlayRef.attach(componentPortal);
@@ -126,7 +136,7 @@ describe('Overlay', () => {
         .toBeTruthy('Expected pizza to still be on the bottom.');
     expect(cakeOverlayRef.overlayElement.nextSibling)
         .toBeFalsy('Expected cake to still be on top.');
-  });
+  }));
 
   it('should set the direction', () => {
     const state = new OverlayState();
@@ -166,18 +176,19 @@ describe('Overlay', () => {
     overlayRef.attach(componentPortal);
   });
 
-  it('should emit when an overlay is detached', () => {
+  it('should emit when an overlay is detached', fakeAsync(() => {
     let overlayRef = overlay.create();
     let spy = jasmine.createSpy('detachments spy');
 
     overlayRef.detachments().subscribe(spy);
     overlayRef.attach(componentPortal);
     overlayRef.detach();
+    tick();
 
     expect(spy).toHaveBeenCalled();
-  });
+  }));
 
-  it('should emit the detachment event after the overlay is removed from the DOM', () => {
+  it('should emit the detachment event after the overlay is removed from the DOM', fakeAsync(() => {
     let overlayRef = overlay.create();
 
     overlayRef.detachments().subscribe(() => {
@@ -187,9 +198,10 @@ describe('Overlay', () => {
 
     overlayRef.attach(componentPortal);
     overlayRef.detach();
-  });
+    tick();
+  }));
 
-  it('should emit and complete the observables when an overlay is disposed', () => {
+  it('should emit and complete the observables when an overlay is disposed', fakeAsync(() => {
     let overlayRef = overlay.create();
     let disposeSpy = jasmine.createSpy('dispose spy');
     let attachCompleteSpy = jasmine.createSpy('attachCompleteSpy spy');
@@ -200,13 +212,14 @@ describe('Overlay', () => {
 
     overlayRef.attach(componentPortal);
     overlayRef.dispose();
+    tick();
 
     expect(disposeSpy).toHaveBeenCalled();
     expect(attachCompleteSpy).toHaveBeenCalled();
     expect(detachCompleteSpy).toHaveBeenCalled();
-  });
+  }));
 
-  it('should complete the attachment observable before the detachment one', () => {
+  it('should complete the attachment observable before the detachment one', fakeAsync(() => {
     let overlayRef = overlay.create();
     let callbackOrder: string[] = [];
 
@@ -215,16 +228,15 @@ describe('Overlay', () => {
 
     overlayRef.attach(componentPortal);
     overlayRef.dispose();
+    tick(500);
 
     expect(callbackOrder).toEqual(['attach', 'detach']);
-  });
+  }));
 
   describe('positioning', () => {
     let state: OverlayState;
 
-    beforeEach(() => {
-      state = new OverlayState();
-    });
+    beforeEach(() => state = new OverlayState());
 
     it('should apply the positioning strategy', () => {
       state.positionStrategy = new FakePositionStrategy();
@@ -238,9 +250,7 @@ describe('Overlay', () => {
   describe('size', () => {
     let state: OverlayState;
 
-    beforeEach(() => {
-      state = new OverlayState();
-    });
+    beforeEach(() => state = new OverlayState());
 
     it('should apply the width set in the config', () => {
       state.width = 500;
@@ -312,7 +322,7 @@ describe('Overlay', () => {
       config.hasBackdrop = true;
     });
 
-    it('should create and destroy an overlay backdrop', () => {
+    it('should create and destroy an overlay backdrop', fakeAsync(() => {
       let overlayRef = overlay.create(config);
       overlayRef.attach(componentPortal);
 
@@ -325,10 +335,12 @@ describe('Overlay', () => {
       overlayRef.backdropClick().subscribe(backdropClickHandler);
 
       backdrop.click();
-      expect(backdropClickHandler).toHaveBeenCalled();
-    });
+      tick();
 
-    it('should complete the backdrop click stream once the overlay is destroyed', () => {
+      expect(backdropClickHandler).toHaveBeenCalled();
+    }));
+
+    it('should complete the backdrop click stream once the overlay is destroyed', fakeAsync(() => {
       let overlayRef = overlay.create(config);
 
       overlayRef.attach(componentPortal);
@@ -338,9 +350,10 @@ describe('Overlay', () => {
 
       overlayRef.backdropClick().subscribe(undefined, undefined, completeHandler);
       overlayRef.dispose();
+      tick(500);
 
       expect(completeHandler).toHaveBeenCalled();
-    });
+    }));
 
     it('should apply the default overlay backdrop class', () => {
       let overlayRef = overlay.create(config);
@@ -362,7 +375,7 @@ describe('Overlay', () => {
       expect(backdrop.classList).toContain('cdk-overlay-transparent-backdrop');
     });
 
-    it('should disable the pointer events of a backdrop that is being removed', () => {
+    it('should disable the pointer events of a backdrop that is being removed', fakeAsync(() => {
       let overlayRef = overlay.create(config);
       overlayRef.attach(componentPortal);
 
@@ -372,9 +385,10 @@ describe('Overlay', () => {
       expect(backdrop.style.pointerEvents).toBeFalsy();
 
       overlayRef.detach();
+      tick(500);
 
       expect(backdrop.style.pointerEvents).toBe('none');
-    });
+    }));
 
     it('should insert the backdrop before the overlay pane in the DOM order', () => {
       let overlayRef = overlay.create(config);
@@ -430,13 +444,15 @@ describe('Overlay', () => {
       expect(fakeScrollStrategy.isEnabled).toBe(true, 'Expected scroll strategy to be enabled.');
     });
 
-    it('should disable the scroll strategy once the overlay is detached', () => {
+    it('should disable the scroll strategy once the overlay is detached', fakeAsync(() => {
       overlayRef.attach(componentPortal);
       expect(fakeScrollStrategy.isEnabled).toBe(true, 'Expected scroll strategy to be enabled.');
 
       overlayRef.detach();
+      tick();
+
       expect(fakeScrollStrategy.isEnabled).toBe(false, 'Expected scroll strategy to be disabled.');
-    });
+    }));
 
     it('should disable the scroll strategy when the overlay is destroyed', () => {
       overlayRef.dispose();

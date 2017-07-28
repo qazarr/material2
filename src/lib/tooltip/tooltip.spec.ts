@@ -287,6 +287,8 @@ describe('MdTooltip', () => {
       expect(tooltipDirective._isTooltipVisible()).toBe(true);
 
       fixture.destroy();
+      tick();
+
       expect(overlayContainerElement.childNodes.length).toBe(0);
       expect(overlayContainerElement.textContent).toBe('');
     }));

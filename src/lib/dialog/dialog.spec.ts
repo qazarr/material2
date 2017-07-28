@@ -126,34 +126,32 @@ describe('MdDialog', () => {
     expect(dialogContainerElement.getAttribute('aria-describedby')).toBe('description-element');
   });
 
-  it('should close a dialog and get back a result', async(() => {
+  it('should close a dialog and get back a result', fakeAsync(() => {
     let dialogRef = dialog.open(PizzaMsg, { viewContainerRef: testViewContainerRef });
     let afterCloseCallback = jasmine.createSpy('afterClose callback');
 
     dialogRef.afterClosed().subscribe(afterCloseCallback);
     dialogRef.close('Charmander');
     viewContainerFixture.detectChanges();
+    tick(500);
 
-    viewContainerFixture.whenStable().then(() => {
-      expect(afterCloseCallback).toHaveBeenCalledWith('Charmander');
-      expect(overlayContainerElement.querySelector('md-dialog-container')).toBeNull();
-    });
+    expect(afterCloseCallback).toHaveBeenCalledWith('Charmander');
+    expect(overlayContainerElement.querySelector('md-dialog-container')).toBeNull();
   }));
 
-  it('should close a dialog via the escape key', async(() => {
+  it('should close a dialog via the escape key', fakeAsync(() => {
     dialog.open(PizzaMsg, {
       viewContainerRef: testViewContainerRef
     });
 
     dispatchKeyboardEvent(document, 'keydown', ESCAPE);
     viewContainerFixture.detectChanges();
+    tick(500);
 
-    viewContainerFixture.whenStable().then(() => {
-      expect(overlayContainerElement.querySelector('md-dialog-container')).toBeNull();
-    });
+    expect(overlayContainerElement.querySelector('md-dialog-container')).toBeNull();
   }));
 
-  it('should close when clicking on the overlay backdrop', async(() => {
+  it('should close when clicking on the overlay backdrop', fakeAsync(() => {
     dialog.open(PizzaMsg, {
       viewContainerRef: testViewContainerRef
     });
@@ -164,10 +162,9 @@ describe('MdDialog', () => {
 
     backdrop.click();
     viewContainerFixture.detectChanges();
+    tick(500);
 
-    viewContainerFixture.whenStable().then(() => {
-      expect(overlayContainerElement.querySelector('md-dialog-container')).toBeFalsy();
-    });
+    expect(overlayContainerElement.querySelector('md-dialog-container')).toBeFalsy();
   }));
 
   it('should notify the observers if a dialog has been opened', () => {
@@ -328,7 +325,7 @@ describe('MdDialog', () => {
     expect(overlayPane.getAttribute('dir')).toBe('rtl');
   });
 
-  it('should close all of the dialogs', async(() => {
+  it('should close all of the dialogs', fakeAsync(() => {
     dialog.open(PizzaMsg);
     dialog.open(PizzaMsg);
     dialog.open(PizzaMsg);
@@ -337,10 +334,9 @@ describe('MdDialog', () => {
 
     dialog.closeAll();
     viewContainerFixture.detectChanges();
+    tick(500);
 
-    viewContainerFixture.whenStable().then(() => {
-      expect(overlayContainerElement.querySelectorAll('md-dialog-container').length).toBe(0);
-    });
+    expect(overlayContainerElement.querySelectorAll('md-dialog-container').length).toBe(0);
   }));
 
   it('should set the proper animation states', () => {
@@ -355,7 +351,7 @@ describe('MdDialog', () => {
     expect(dialogContainer._state).toBe('exit');
   });
 
-  it('should close all dialogs when the user goes forwards/backwards in history', async(() => {
+  it('should close all dialogs when the user goes forwards/backwards in history', fakeAsync(() => {
     dialog.open(PizzaMsg);
     dialog.open(PizzaMsg);
 
@@ -363,13 +359,12 @@ describe('MdDialog', () => {
 
     mockLocation.simulateUrlPop('');
     viewContainerFixture.detectChanges();
+    tick(500);
 
-    viewContainerFixture.whenStable().then(() => {
-      expect(overlayContainerElement.querySelectorAll('md-dialog-container').length).toBe(0);
-    });
+    expect(overlayContainerElement.querySelectorAll('md-dialog-container').length).toBe(0);
   }));
 
-  it('should close all open dialogs when the location hash changes', async(() => {
+  it('should close all open dialogs when the location hash changes', fakeAsync(() => {
     dialog.open(PizzaMsg);
     dialog.open(PizzaMsg);
 
@@ -377,10 +372,9 @@ describe('MdDialog', () => {
 
     mockLocation.simulateHashChange('');
     viewContainerFixture.detectChanges();
+    tick(500);
 
-    viewContainerFixture.whenStable().then(() => {
-      expect(overlayContainerElement.querySelectorAll('md-dialog-container').length).toBe(0);
-    });
+    expect(overlayContainerElement.querySelectorAll('md-dialog-container').length).toBe(0);
   }));
 
   it('should have the componentInstance available in the afterClosed callback', fakeAsync(() => {
@@ -458,7 +452,7 @@ describe('MdDialog', () => {
       expect(overlayContainerElement.querySelector('md-dialog-container')).toBeTruthy();
     });
 
-    it('should allow for the disableClose option to be updated while open', async(() => {
+    it('should allow for the disableClose option to be updated while open', fakeAsync(() => {
       let dialogRef = dialog.open(PizzaMsg, {
         disableClose: true,
         viewContainerRef: testViewContainerRef
@@ -475,9 +469,9 @@ describe('MdDialog', () => {
       backdrop.click();
 
       viewContainerFixture.detectChanges();
-      viewContainerFixture.whenStable().then(() => {
-        expect(overlayContainerElement.querySelector('md-dialog-container')).toBeFalsy();
-      });
+      tick(500);
+
+      expect(overlayContainerElement.querySelector('md-dialog-container')).toBeFalsy();
     }));
   });
 
@@ -622,20 +616,19 @@ describe('MdDialog', () => {
   describe('dialog content elements', () => {
     let dialogRef: MdDialogRef<ContentElementDialog>;
 
-    beforeEach(() => {
+    beforeEach(fakeAsync(() => {
       dialogRef = dialog.open(ContentElementDialog);
       viewContainerFixture.detectChanges();
-    });
+    }));
 
-    it('should close the dialog when clicking on the close button', async(() => {
+    it('should close the dialog when clicking on the close button', fakeAsync(() => {
       expect(overlayContainerElement.querySelectorAll('.mat-dialog-container').length).toBe(1);
 
       (overlayContainerElement.querySelector('button[md-dialog-close]') as HTMLElement).click();
       viewContainerFixture.detectChanges();
+      tick(500);
 
-      viewContainerFixture.whenStable().then(() => {
-        expect(overlayContainerElement.querySelectorAll('.mat-dialog-container').length).toBe(0);
-      });
+      expect(overlayContainerElement.querySelectorAll('.mat-dialog-container').length).toBe(0);
     }));
 
     it('should not close the dialog if [md-dialog-close] is applied on a non-button node', () => {
@@ -724,7 +717,7 @@ describe('MdDialog with a parent MdDialog', () => {
   });
 
   it('should close dialogs opened by a parent when calling closeAll on a child MdDialog',
-    async(() => {
+    fakeAsync(() => {
       parentDialog.open(PizzaMsg);
       fixture.detectChanges();
 
@@ -733,15 +726,14 @@ describe('MdDialog with a parent MdDialog', () => {
 
       childDialog.closeAll();
       fixture.detectChanges();
+      tick(500);
 
-      fixture.whenStable().then(() => {
-        expect(overlayContainerElement.textContent!.trim())
-            .toBe('', 'Expected closeAll on child MdDialog to close dialog opened by parent');
-      });
+      expect(overlayContainerElement.textContent!.trim())
+          .toBe('', 'Expected closeAll on child MdDialog to close dialog opened by parent');
     }));
 
   it('should close dialogs opened by a child when calling closeAll on a parent MdDialog',
-    async(() => {
+    fakeAsync(() => {
       childDialog.open(PizzaMsg);
       fixture.detectChanges();
 
@@ -750,22 +742,20 @@ describe('MdDialog with a parent MdDialog', () => {
 
       parentDialog.closeAll();
       fixture.detectChanges();
+      tick(500);
 
-      fixture.whenStable().then(() => {
-        expect(overlayContainerElement.textContent!.trim())
-            .toBe('', 'Expected closeAll on parent MdDialog to close dialog opened by child');
-      });
+      expect(overlayContainerElement.textContent!.trim())
+          .toBe('', 'Expected closeAll on parent MdDialog to close dialog opened by child');
     }));
 
-  it('should close the top dialog via the escape key', async(() => {
+  it('should close the top dialog via the escape key', fakeAsync(() => {
     childDialog.open(PizzaMsg);
 
     dispatchKeyboardEvent(document, 'keydown', ESCAPE);
     fixture.detectChanges();
+    tick(500);
 
-    fixture.whenStable().then(() => {
-      expect(overlayContainerElement.querySelector('md-dialog-container')).toBeNull();
-    });
+    expect(overlayContainerElement.querySelector('md-dialog-container')).toBeNull();
   }));
 });
 

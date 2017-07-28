@@ -151,21 +151,20 @@ describe('MdSelect', () => {
       expect(overlayContainerElement.textContent).toContain('Tacos');
     });
 
-    it('should close the panel when an item is clicked', async(() => {
+    it('should close the panel when an item is clicked', fakeAsync(() => {
       trigger.click();
       fixture.detectChanges();
 
       const option = overlayContainerElement.querySelector('md-option') as HTMLElement;
       option.click();
       fixture.detectChanges();
+      tick(500);
 
-      fixture.whenStable().then(() => {
-        expect(overlayContainerElement.textContent).toEqual('');
-        expect(fixture.componentInstance.select.panelOpen).toBe(false);
-      });
+      expect(overlayContainerElement.textContent).toEqual('');
+      expect(fixture.componentInstance.select.panelOpen).toBe(false);
     }));
 
-    it('should close the panel when a click occurs outside the panel', async(() => {
+    it('should close the panel when a click occurs outside the panel', fakeAsync(() => {
       trigger.click();
       fixture.detectChanges();
 
@@ -174,11 +173,10 @@ describe('MdSelect', () => {
 
       backdrop.click();
       fixture.detectChanges();
+      tick(500);
 
-      fixture.whenStable().then(() => {
-        expect(overlayContainerElement.textContent).toEqual('');
-        expect(fixture.componentInstance.select.panelOpen).toBe(false);
-      });
+      expect(overlayContainerElement.textContent).toEqual('');
+      expect(fixture.componentInstance.select.panelOpen).toBe(false);
     }));
 
     it('should set the width of the overlay based on the trigger', async(() => {
@@ -2015,7 +2013,7 @@ describe('MdSelect', () => {
             overlayContainerElement.querySelectorAll('md-option') as NodeListOf<HTMLElement>;
       });
 
-      it('should set aria-owns properly', async(() => {
+      it('should set aria-owns properly', fakeAsync(() => {
         const selects = fixture.debugElement.queryAll(By.css('md-select'));
 
         expect(selects[0].nativeElement.getAttribute('aria-owns'))
@@ -2027,22 +2025,21 @@ describe('MdSelect', () => {
             overlayContainerElement.querySelector('.cdk-overlay-backdrop') as HTMLElement;
         backdrop.click();
         fixture.detectChanges();
+        tick(500);
 
-        fixture.whenStable().then(() => {
-          triggers[1].nativeElement.click();
+        triggers[1].nativeElement.click();
+        fixture.detectChanges();
 
-          fixture.detectChanges();
-          options =
-              overlayContainerElement.querySelectorAll('md-option') as NodeListOf<HTMLElement>;
-          expect(selects[1].nativeElement.getAttribute('aria-owns'))
-              .toContain(options[0].id, `Expected aria-owns to contain IDs of its child options.`);
-          expect(selects[1].nativeElement.getAttribute('aria-owns'))
-              .toContain(options[1].id, `Expected aria-owns to contain IDs of its child options.`);
-        });
+        options =
+            overlayContainerElement.querySelectorAll('md-option') as NodeListOf<HTMLElement>;
+        expect(selects[1].nativeElement.getAttribute('aria-owns'))
+            .toContain(options[0].id, `Expected aria-owns to contain IDs of its child options.`);
+        expect(selects[1].nativeElement.getAttribute('aria-owns'))
+            .toContain(options[1].id, `Expected aria-owns to contain IDs of its child options.`);
 
       }));
 
-      it('should set the option id properly', async(() => {
+      it('should set the option id properly', fakeAsync(() => {
         let firstOptionID = options[0].id;
 
         expect(options[0].id)
@@ -2053,19 +2050,17 @@ describe('MdSelect', () => {
             overlayContainerElement.querySelector('.cdk-overlay-backdrop') as HTMLElement;
         backdrop.click();
         fixture.detectChanges();
+        tick(500);
 
-        fixture.whenStable().then(() => {
-          triggers[1].nativeElement.click();
+        triggers[1].nativeElement.click();
 
-          fixture.detectChanges();
-          options =
-              overlayContainerElement.querySelectorAll('md-option') as NodeListOf<HTMLElement>;
-          expect(options[0].id)
-              .toContain('md-option', `Expected option ID to have the correct prefix.`);
-          expect(options[0].id).not.toEqual(firstOptionID, `Expected option IDs to be unique.`);
-          expect(options[0].id).not.toEqual(options[1].id, `Expected option IDs to be unique.`);
-        });
-
+        fixture.detectChanges();
+        options =
+            overlayContainerElement.querySelectorAll('md-option') as NodeListOf<HTMLElement>;
+        expect(options[0].id)
+            .toContain('md-option', `Expected option ID to have the correct prefix.`);
+        expect(options[0].id).not.toEqual(firstOptionID, `Expected option IDs to be unique.`);
+        expect(options[0].id).not.toEqual(options[1].id, `Expected option IDs to be unique.`);
       }));
 
     });

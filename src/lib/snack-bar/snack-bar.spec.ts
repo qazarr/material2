@@ -5,7 +5,7 @@ import {
   TestBed,
   fakeAsync,
   flushMicrotasks,
-  tick
+  tick,
 } from '@angular/core/testing';
 import {NgModule, Component, Directive, ViewChild, ViewContainerRef, Inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
@@ -73,7 +73,7 @@ describe('MdSnackBar', () => {
         .toBe('alert', 'Expected snack bar container to have role="alert"');
    });
 
-   it('should open and close a snackbar without a ViewContainerRef', async(() => {
+   it('should open and close a snackbar without a ViewContainerRef', fakeAsync(() => {
      let snackBarRef = snackBar.open('Snack time!', 'Chew');
      viewContainerFixture.detectChanges();
 
@@ -83,11 +83,10 @@ describe('MdSnackBar', () => {
 
      snackBarRef.dismiss();
      viewContainerFixture.detectChanges();
+     tick(500);
 
-     viewContainerFixture.whenStable().then(() => {
-       expect(overlayContainerElement.childNodes.length)
-          .toBe(0, 'Expected snack bar to be dismissed without a ViewContainerRef');
-     });
+    expect(overlayContainerElement.childNodes.length)
+      .toBe(0, 'Expected snack bar to be dismissed without a ViewContainerRef');
    }));
 
   it('should open a simple message with a button', () => {
@@ -131,7 +130,7 @@ describe('MdSnackBar', () => {
         .toBeNull('Expected the query selection for action label to be null');
   });
 
-  it('should dismiss the snack bar and remove itself from the view', async(() => {
+  it('should dismiss the snack bar and remove itself from the view', fakeAsync(() => {
     let config = {viewContainerRef: testViewContainerRef};
     let dismissObservableCompleted = false;
 
@@ -146,25 +145,23 @@ describe('MdSnackBar', () => {
 
     snackBarRef.dismiss();
     viewContainerFixture.detectChanges();  // Run through animations for dismissal
+    tick(500);
 
-    viewContainerFixture.whenStable().then(() => {
-      expect(dismissObservableCompleted).toBeTruthy('Expected the snack bar to be dismissed');
-      expect(overlayContainerElement.childElementCount)
-          .toBe(0, 'Expected the overlay container element to have no child elements');
-    });
+    expect(dismissObservableCompleted).toBeTruthy('Expected the snack bar to be dismissed');
+    expect(overlayContainerElement.childElementCount)
+        .toBe(0, 'Expected the overlay container element to have no child elements');
   }));
 
-  it('should be able to get dismissed through the service', async(() => {
+  it('should be able to get dismissed through the service', fakeAsync(() => {
     snackBar.open(simpleMessage);
     viewContainerFixture.detectChanges();
     expect(overlayContainerElement.childElementCount).toBeGreaterThan(0);
 
     snackBar.dismiss();
     viewContainerFixture.detectChanges();
+    tick(500);
 
-    viewContainerFixture.whenStable().then(() => {
-      expect(overlayContainerElement.childElementCount).toBe(0);
-    });
+    expect(overlayContainerElement.childElementCount).toBe(0);
   }));
 
   it('should clean itself up when the view container gets destroyed', async(() => {

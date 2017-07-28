@@ -74,37 +74,38 @@ export class OverlayRef implements PortalHost {
    * @returns Resolves when the overlay has been detached.
    */
   detach(): Promise<any> {
-    this.detachBackdrop();
+    return this.detachBackdrop().then(() => {
+      // When the overlay is detached, the pane element should disable pointer events.
+      // This is necessary because otherwise the pane element will cover the page and disable
+      // pointer events therefore. Depends on the position strategy and the applied pane boundaries.
+      this._togglePointerEvents(false);
+      this._state.scrollStrategy.disable();
 
-    // When the overlay is detached, the pane element should disable pointer events.
-    // This is necessary because otherwise the pane element will cover the page and disable
-    // pointer events therefore. Depends on the position strategy and the applied pane boundaries.
-    this._togglePointerEvents(false);
-    this._state.scrollStrategy.disable();
+      let detachmentResult = this._portalHost.detach();
 
-    let detachmentResult = this._portalHost.detach();
+      // Only emit after everything is detached.
+      this._detachments.next();
 
-    // Only emit after everything is detached.
-    this._detachments.next();
-
-    return detachmentResult;
+      return detachmentResult;
+    });
   }
 
   /**
    * Cleans up the overlay from the DOM.
    */
   dispose(): void {
-    if (this._state.positionStrategy) {
-      this._state.positionStrategy.dispose();
-    }
+    this.detachBackdrop().then(() => {
+      if (this._state.positionStrategy) {
+        this._state.positionStrategy.dispose();
+      }
 
-    this._state.scrollStrategy.disable();
-    this.detachBackdrop();
-    this._portalHost.dispose();
-    this._attachments.complete();
-    this._backdropClick.complete();
-    this._detachments.next();
-    this._detachments.complete();
+      this._state.scrollStrategy.disable();
+      this._portalHost.dispose();
+      this._attachments.complete();
+      this._backdropClick.complete();
+      this._detachments.next();
+      this._detachments.complete();
+    });
   }
 
   /**
@@ -213,11 +214,15 @@ export class OverlayRef implements PortalHost {
   }
 
   /** Detaches the backdrop (if any) associated with the overlay. */
-  detachBackdrop(): void {
-    let backdropToDetach = this._backdropElement;
+  detachBackdrop(): Promise<void> {
+    const backdropToDetach = this._backdropElement;
 
-    if (backdropToDetach) {
+    return backdropToDetach ? new Promise<void>(resolve => {
       let finishDetach = () => {
+        if (this._state.backdropClass) {
+          backdropToDetach.classList.remove(this._state.backdropClass);
+        }
+
         // It may not be attached to anything in certain cases (e.g. unit tests).
         if (backdropToDetach && backdropToDetach.parentNode) {
           backdropToDetach.parentNode.removeChild(backdropToDetach);
@@ -229,15 +234,12 @@ export class OverlayRef implements PortalHost {
         if (this._backdropElement == backdropToDetach) {
           this._backdropElement = null;
         }
+
+        resolve();
       };
 
-      backdropToDetach.classList.remove('cdk-overlay-backdrop-showing');
-
-      if (this._state.backdropClass) {
-        backdropToDetach.classList.remove(this._state.backdropClass);
-      }
-
       backdropToDetach.addEventListener('transitionend', finishDetach);
+      backdropToDetach.classList.remove('cdk-overlay-backdrop-showing');
 
       // If the backdrop doesn't have a transition, the `transitionend` event won't fire.
       // In this case we make it unclickable and we try to remove it after a delay.
@@ -246,10 +248,8 @@ export class OverlayRef implements PortalHost {
       // Run this outside the Angular zone because there's nothing that Angular cares about.
       // If it were to run inside the Angular zone, every test that used Overlay would have to be
       // either async or fakeAsync.
-      this._ngZone.runOutsideAngular(() => {
-        setTimeout(finishDetach, 500);
-      });
-    }
+      this._ngZone.runOutsideAngular(() => setTimeout(finishDetach, 500));
+    }) : Promise.resolve();
   }
 }
 

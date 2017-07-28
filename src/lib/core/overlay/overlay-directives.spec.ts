@@ -1,4 +1,4 @@
-import {ComponentFixture, TestBed, async} from '@angular/core/testing';
+import {ComponentFixture, TestBed, async, fakeAsync, tick} from '@angular/core/testing';
 import {Component, ViewChild} from '@angular/core';
 import {By} from '@angular/platform-browser';
 import {ConnectedOverlayDirective, OverlayModule, OverlayOrigin} from './index';
@@ -41,7 +41,7 @@ describe('Overlay directives', () => {
     return overlayContainerElement.querySelector('.cdk-overlay-pane') as HTMLElement;
   }
 
-  it(`should attach the overlay based on the open property`, () => {
+  it(`should attach the overlay based on the open property`, fakeAsync(() => {
     fixture.componentInstance.isOpen = true;
     fixture.detectChanges();
 
@@ -51,21 +51,23 @@ describe('Overlay directives', () => {
 
     fixture.componentInstance.isOpen = false;
     fixture.detectChanges();
+    tick();
 
     expect(overlayContainerElement.textContent).toBe('');
     expect(getPaneElement().style.pointerEvents)
       .toBe('none', 'Expected the overlay pane to disable pointerEvents when detached.');
-  });
+  }));
 
-  it('should destroy the overlay when the directive is destroyed', () => {
+  it('should destroy the overlay when the directive is destroyed', fakeAsync(() => {
     fixture.componentInstance.isOpen = true;
     fixture.detectChanges();
     fixture.destroy();
+    tick();
 
     expect(overlayContainerElement.textContent!.trim()).toBe('');
     expect(getPaneElement())
       .toBeFalsy('Expected the overlay pane element to be removed when disposed.');
-  });
+  }));
 
   it('should use a connected position strategy with a default set of positions', () => {
     fixture.componentInstance.isOpen = true;
@@ -83,7 +85,7 @@ describe('Overlay directives', () => {
     expect(positions.length).toBeGreaterThan(0);
   });
 
-  it('should set and update the `dir` attribute', () => {
+  it('should set and update the `dir` attribute', fakeAsync(() => {
     dir.value = 'rtl';
     fixture.componentInstance.isOpen = true;
     fixture.detectChanges();
@@ -92,24 +94,26 @@ describe('Overlay directives', () => {
 
     fixture.componentInstance.isOpen = false;
     fixture.detectChanges();
+    tick();
 
     dir.value = 'ltr';
     fixture.componentInstance.isOpen = true;
     fixture.detectChanges();
 
     expect(getPaneElement().getAttribute('dir')).toBe('ltr');
-  });
+  }));
 
-  it('should close when pressing escape', () => {
+  it('should close when pressing escape', fakeAsync(() => {
     fixture.componentInstance.isOpen = true;
     fixture.detectChanges();
 
     dispatchKeyboardEvent(document, 'keydown', ESCAPE);
     fixture.detectChanges();
+    tick();
 
     expect(overlayContainerElement.textContent!.trim()).toBe('',
         'Expected overlay to have been detached.');
-  });
+  }));
 
   it('should not depend on the order in which the `origin` and `open` are set', async(() => {
     fixture.destroy();
@@ -191,7 +195,7 @@ describe('Overlay directives', () => {
       expect(backdrop.classList).toContain('mat-test-class');
     });
 
-    it('should set the offsetX', () => {
+    it('should set the offsetX', fakeAsync(() => {
       const trigger = fixture.debugElement.query(By.css('button')).nativeElement;
       const startX = trigger.getBoundingClientRect().left;
 
@@ -207,6 +211,7 @@ describe('Overlay directives', () => {
 
       fixture.componentInstance.isOpen = false;
       fixture.detectChanges();
+      tick();
 
       fixture.componentInstance.offsetX = 15;
       fixture.componentInstance.isOpen = true;
@@ -215,9 +220,9 @@ describe('Overlay directives', () => {
       expect(pane.style.left)
           .toBe(startX + 15 + 'px',
               `Expected overlay directive to reflect new offsetX if it changes.`);
-    });
+    }));
 
-    it('should set the offsetY', () => {
+    it('should set the offsetY', fakeAsync(() => {
       const trigger = fixture.debugElement.query(By.css('button')).nativeElement;
       trigger.style.position = 'absolute';
       trigger.style.top = '30px';
@@ -236,13 +241,14 @@ describe('Overlay directives', () => {
 
       fixture.componentInstance.isOpen = false;
       fixture.detectChanges();
+      tick();
 
       fixture.componentInstance.offsetY = 55;
       fixture.componentInstance.isOpen = true;
       fixture.detectChanges();
       expect(pane.style.top)
           .toBe('105px', `Expected overlay directive to reflect new offsetY if it changes.`);
-    });
+    }));
 
   });
 

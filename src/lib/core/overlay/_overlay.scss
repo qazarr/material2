@@ -65,6 +65,7 @@
 
   .cdk-overlay-transparent-backdrop {
     background: none;
+    transition-duration: 1ms;
   }
 
   // Used when disabling global scrolling.

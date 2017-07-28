@@ -1,4 +1,4 @@
-import {inject, TestBed, async} from '@angular/core/testing';
+import {inject, TestBed, async, fakeAsync, tick} from '@angular/core/testing';
 import {NgModule, Component} from '@angular/core';
 import {Subject} from 'rxjs/Subject';
 import {
@@ -56,25 +56,27 @@ describe('RepositionScrollStrategy', () => {
     expect(overlayRef.updatePosition).toHaveBeenCalledTimes(2);
   });
 
-  it('should not be updating the position after the overlay is detached', () => {
+  it('should not be updating the position after the overlay is detached', fakeAsync(() => {
     overlayRef.attach(componentPortal);
     spyOn(overlayRef, 'updatePosition');
 
     overlayRef.detach();
+    tick();
     scrolledSubject.next();
 
     expect(overlayRef.updatePosition).not.toHaveBeenCalled();
-  });
+  }));
 
-  it('should not be updating the position after the overlay is destroyed', () => {
+  it('should not be updating the position after the overlay is destroyed', fakeAsync(() => {
     overlayRef.attach(componentPortal);
     spyOn(overlayRef, 'updatePosition');
 
     overlayRef.dispose();
+    tick();
     scrolledSubject.next();
 
     expect(overlayRef.updatePosition).not.toHaveBeenCalled();
-  });
+  }));
 
 });
 

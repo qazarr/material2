@@ -1,4 +1,4 @@
-import {inject, TestBed, async} from '@angular/core/testing';
+import {inject, TestBed, async, fakeAsync, tick} from '@angular/core/testing';
 import {NgModule, Component} from '@angular/core';
 import {Subject} from 'rxjs/Subject';
 import {
@@ -53,15 +53,16 @@ describe('CloseScrollStrategy', () => {
     expect(overlayRef.detach).toHaveBeenCalled();
   });
 
-  it('should not attempt to detach the overlay after it has been detached', () => {
+  it('should not attempt to detach the overlay after it has been detached', fakeAsync(() => {
     overlayRef.attach(componentPortal);
     overlayRef.detach();
+    tick();
 
     spyOn(overlayRef, 'detach');
     scrolledSubject.next();
 
     expect(overlayRef.detach).not.toHaveBeenCalled();
-  });
+  }));
 
 });
 

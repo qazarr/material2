@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {async, ComponentFixture, TestBed, inject} from '@angular/core/testing';
+import {async, ComponentFixture, TestBed, inject, fakeAsync, tick} from '@angular/core/testing';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {By} from '@angular/platform-browser';
@@ -111,7 +111,7 @@ describe('MdDatepicker', () => {
         expect(document.querySelector('.cdk-overlay-pane')).not.toBeNull();
       });
 
-      it('close should close popup', () => {
+      it('close should close popup', fakeAsync(() => {
         testComponent.datepicker.open();
         fixture.detectChanges();
 
@@ -121,13 +121,12 @@ describe('MdDatepicker', () => {
 
         testComponent.datepicker.close();
         fixture.detectChanges();
+        tick(500);
 
-        fixture.whenStable().then(() => {
-          expect(parseInt(getComputedStyle(popup).height as string)).toBe(0);
-        });
-      });
+        expect(parseInt(getComputedStyle(popup).height as string)).toBe(0);
+      }));
 
-      it('should close the popup when pressing ESCAPE', () => {
+      it('should close the popup when pressing ESCAPE', fakeAsync(() => {
         testComponent.datepicker.open();
         fixture.detectChanges();
 
@@ -136,15 +135,16 @@ describe('MdDatepicker', () => {
 
         let keyboadEvent = dispatchKeyboardEvent(content, 'keydown', ESCAPE);
         fixture.detectChanges();
+        tick(500);
 
         content = document.querySelector('.cdk-overlay-pane md-datepicker-content')!;
 
         expect(content).toBeFalsy('Expected datepicker to be closed.');
         expect(keyboadEvent.defaultPrevented)
             .toBe(true, 'Expected default ESCAPE action to be prevented.');
-      });
+      }));
 
-      it('close should close dialog', () => {
+      it('close should close dialog', fakeAsync(() => {
         testComponent.touch = true;
         fixture.detectChanges();
 
@@ -155,13 +155,12 @@ describe('MdDatepicker', () => {
 
         testComponent.datepicker.close();
         fixture.detectChanges();
+        tick(500);
 
-        fixture.whenStable().then(() => {
-          expect(document.querySelector('md-dialog-container')).toBeNull();
-        });
-      });
+        expect(document.querySelector('md-dialog-container')).toBeNull();
+      }));
 
-      it('setting selected should update input and close calendar', () => {
+      it('setting selected should update input and close calendar', fakeAsync(() => {
         testComponent.touch = true;
         fixture.detectChanges();
 
@@ -174,12 +173,11 @@ describe('MdDatepicker', () => {
         let cells = document.querySelectorAll('.mat-calendar-body-cell');
         dispatchMouseEvent(cells[1], 'click');
         fixture.detectChanges();
+        tick(500);
 
-        fixture.whenStable().then(() => {
-          expect(document.querySelector('md-dialog-container')).toBeNull();
-          expect(testComponent.datepickerInput.value).toEqual(new Date(2020, JAN, 2));
-        });
-      });
+        expect(document.querySelector('md-dialog-container')).toBeNull();
+        expect(testComponent.datepickerInput.value).toEqual(new Date(2020, JAN, 2));
+      }));
 
       it('startAt should fallback to input value', () => {
         expect(testComponent.datepicker.startAt).toEqual(new Date(2020, JAN, 1));

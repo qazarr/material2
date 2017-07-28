@@ -1,5 +1,5 @@
 import {NgModule, Component} from '@angular/core';
-import {inject, TestBed, async} from '@angular/core/testing';
+import {async, fakeAsync, inject, TestBed, tick} from '@angular/core/testing';
 import {
   ComponentPortal,
   OverlayModule,
@@ -51,7 +51,7 @@ describe('BlockScrollStrategy', () => {
     container.getContainerElement().parentNode!.removeChild(container.getContainerElement());
   }));
 
-  it('should toggle scroll blocking along the y axis', skipIOS(() => {
+  it('should toggle scroll blocking along the y axis', skipIOS(fakeAsync(() => {
     setScrollPosition(0, 100);
     expect(viewport.getViewportScrollPosition().top)
         .toBe(100, 'Expected viewport to be scrollable initially.');
@@ -65,16 +65,17 @@ describe('BlockScrollStrategy', () => {
         .toBe(100, 'Expected the viewport not to scroll.');
 
     overlayRef.detach();
+    tick();
+
     expect(viewport.getViewportScrollPosition().top)
         .toBe(100, 'Expected old scroll position to have bee restored after disabling.');
 
     setScrollPosition(0, 300);
     expect(viewport.getViewportScrollPosition().top)
         .toBe(300, 'Expected user to be able to scroll after disabling.');
-  }));
+  })));
 
-
-  it('should toggle scroll blocking along the x axis', skipIOS(() => {
+  it('should toggle scroll blocking along the x axis', skipIOS(fakeAsync(() => {
     forceScrollElement.style.height = '100px';
     forceScrollElement.style.width = '3000px';
 
@@ -91,26 +92,29 @@ describe('BlockScrollStrategy', () => {
         .toBe(100, 'Expected the viewport not to scroll.');
 
     overlayRef.detach();
+    tick();
+
     expect(viewport.getViewportScrollPosition().left)
         .toBe(100, 'Expected old scroll position to have bee restored after disabling.');
 
     setScrollPosition(300, 0);
     expect(viewport.getViewportScrollPosition().left)
         .toBe(300, 'Expected user to be able to scroll after disabling.');
-  }));
+  })));
 
-
-  it('should toggle the `cdk-global-scrollblock` class', skipIOS(() => {
+  it('should toggle the `cdk-global-scrollblock` class', skipIOS(fakeAsync(() => {
     expect(document.documentElement.classList).not.toContain('cdk-global-scrollblock');
 
     overlayRef.attach(componentPortal);
     expect(document.documentElement.classList).toContain('cdk-global-scrollblock');
 
     overlayRef.detach();
-    expect(document.documentElement.classList).not.toContain('cdk-global-scrollblock');
-  }));
+    tick();
 
-  it('should restore any previously-set inline styles', skipIOS(() => {
+    expect(document.documentElement.classList).not.toContain('cdk-global-scrollblock');
+  })));
+
+  it('should restore any previously-set inline styles', skipIOS(fakeAsync(() => {
     const root = document.documentElement;
 
     root.style.top = '13px';
@@ -122,10 +126,11 @@ describe('BlockScrollStrategy', () => {
     expect(root.style.left).not.toBe('37px');
 
     overlayRef.detach();
+    tick();
 
     expect(root.style.top).toBe('13px');
     expect(root.style.left).toBe('37px');
-  }));
+  })));
 
   it(`should't do anything if the page isn't scrollable`, skipIOS(() => {
     forceScrollElement.style.display = 'none';
