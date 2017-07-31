@@ -21,42 +21,35 @@ const plugin = stylelint.createPlugin(ruleName, browsers => {
     const needsPrefix = new NeedsPrefix(browsers);
 
     // Check all of the `property: value` pairs.
-    root.walkDecls(decl => {
-      if (needsPrefix.property(decl.prop)) {
+    root.walkDecls(node => {
+      let message = null;
+
+      if (needsPrefix.property(node.prop)) {
+        message = messages.property(node.prop);
+      } else if (needsPrefix.value(node.prop, node.value)) {
+        message = messages.value(node.prop, node.value);
+      }
+
+      if (message) {
         stylelint.utils.report({
-          result,
-          ruleName,
-          message: messages.property(decl.prop),
-          node: decl,
-          index: (decl.raws.before || '').length
-        });
-      } else if (needsPrefix.value(decl.prop, decl.value)) {
-        stylelint.utils.report({
-          result,
-          ruleName,
-          message: messages.value(decl.prop, decl.value),
-          node: decl,
-          index: (decl.raws.before || '').length
+          result, ruleName, message, node,
+          index: (node.raws.before || '').length
         });
       }
     });
 
     // Check all of the @-rules and their values.
-    root.walkAtRules(rule => {
-      if (needsPrefix.atRule(rule.name)) {
-        stylelint.utils.report({
-          result,
-          ruleName,
-          message: messages.atRule(rule.name),
-          node: rule
-        });
-      } else if (needsPrefix.mediaFeature(rule.params)) {
-        stylelint.utils.report({
-          result,
-          ruleName,
-          message: messages.mediaFeature(rule.name),
-          node: rule
-        });
+    root.walkAtRules(node => {
+      let message = null;
+
+      if (needsPrefix.atRule(node.name)) {
+        message = messages.atRule(node.name);
+      } else if (needsPrefix.mediaFeature(node.params)) {
+        message = messages.mediaFeature(node.name);
+      }
+
+      if (message) {
+        stylelint.utils.report({ result, ruleName, message, node });
       }
     });
 

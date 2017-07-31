@@ -6,7 +6,22 @@
     "./tools/stylelint/no-nested-mixin/index.js"
   ],
   "rules": {
-    "material/no-prefixes": [["last 2 versions", "not ie <= 10", "not ie_mob <= 10"]],
+    "material/no-prefixes": [[
+        "last 2 Chrome versions",
+        "last 2 ChromeAndroid versions",
+        "last 2 Edge versions",
+        "last 2 Firefox versions",
+        "last 2 FirefoxAndroid versions",
+        "last 2 iOS versions",
+        "last 2 Opera versions",
+        "last 2 Safari versions",
+        "last 2 OperaMini versions",
+        "last 2 OperaMobile versions",
+        "last 1 Android version",
+        "last 1 Samsung version",
+        "Explorer > 10",
+        "ExplorerMobile > 10"
+    ]],
     "material/selector-no-deep": true,
     "material/no-nested-mixin": true,
     "material/selector-nested-pattern-scoped": [".*[^&]$", {
