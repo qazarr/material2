@@ -16,6 +16,7 @@ import {
   Renderer2,
   Directive,
   ViewChild,
+  HostBinding,
 } from '@angular/core';
 import {CanColor, mixinColor} from '../core/common-behaviors/color';
 
@@ -80,73 +81,17 @@ export const _MdProgressSpinnerMixinBase = mixinColor(MdProgressSpinnerBase, 'pr
   styleUrls: ['progress-spinner.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MdProgressSpinner extends _MdProgressSpinnerMixinBase
-    implements OnDestroy, CanColor {
-
-  /** The id of the last requested animation. */
-  private _lastAnimationId: number = 0;
-
-  /** The id of the indeterminate interval. */
-  private _interdeterminateInterval: number | null;
-
-  /** The SVG <path> node that is used to draw the circle. */
-  @ViewChild('path') private _path: ElementRef;
-
-  private _mode: ProgressSpinnerMode = 'determinate';
-  private _value: number;
-
-  /** Stroke width of the progress spinner. By default uses 10px as stroke width. */
-  @Input() strokeWidth: number = PROGRESS_SPINNER_STROKE_WIDTH;
+export class MdProgressSpinner {
 
   /**
-   * Values for aria max and min are only defined as numbers when in a determinate mode.  We do this
-   * because voiceover does not report the progress indicator as indeterminate if the aria min
-   * and/or max value are number values.
+   * Value of the progress circle.
+   *
+   * Input:number, defaults to 0.
+   * _value is bound to the host as the attribute aria-valuenow.
    */
-  get _ariaValueMin() {
-    return this.mode == 'determinate' ? 0 : null;
-  }
-
-  get _ariaValueMax() {
-    return this.mode == 'determinate' ? 100 : null;
-  }
-
-  /** @docs-private */
-  get interdeterminateInterval() {
-    return this._interdeterminateInterval;
-  }
-  /** @docs-private */
-  set interdeterminateInterval(interval: number | null) {
-    if (this._interdeterminateInterval) {
-      clearInterval(this._interdeterminateInterval);
-    }
-
-    this._interdeterminateInterval = interval;
-  }
-
-  /**
-   * Clean up any animations that were running.
-   */
-  ngOnDestroy() {
-    this._cleanupIndeterminateAnimation();
-  }
-
-  /** Value of the progress circle. It is bound to the host as the attribute aria-valuenow. */
-  @Input()
-  get value() {
-    if (this.mode == 'determinate') {
-      return this._value;
-    }
-
-    return 0;
-  }
-  set value(v: number) {
-    if (v != null && this.mode == 'determinate') {
-      let newValue = clamp(v);
-      this._animateCircle(this.value || 0, newValue);
-      this._value = newValue;
-    }
-  }
+  @HostBinding('attr.aria-valuenow')
+  @Input('value')
+  _value: number = 0;
 
   /**
    * Mode of the progress circle
@@ -154,115 +99,46 @@ export class MdProgressSpinner extends _MdProgressSpinnerMixinBase
    * Input must be one of the values from ProgressMode, defaults to 'determinate'.
    * mode is bound to the host as the attribute host.
    */
-  @Input()
-  get mode() { return this._mode; }
-  set mode(mode: ProgressSpinnerMode) {
-    if (mode !== this._mode) {
-      if (mode === 'indeterminate') {
-        this._startIndeterminateAnimation();
-      } else {
-        this._cleanupIndeterminateAnimation();
-        this._animateCircle(0, this._value);
-      }
-      this._mode = mode;
-    }
-  }
+  @HostBinding('attr.mode')
+  @Input() mode: 'determinate' | 'indeterminate' = 'determinate';
 
-  constructor(renderer: Renderer2,
-              elementRef: ElementRef,
-              private _ngZone: NgZone) {
-    super(renderer, elementRef);
-  }
+  @Input() strokeWidth: any;
 
 
   /**
-   * Animates the circle from one percentage value to another.
+   * Gets the current stroke dash offset to represent the progress circle.
    *
-   * @param animateFrom The percentage of the circle filled starting the animation.
-   * @param animateTo The percentage of the circle filled ending the animation.
-   * @param ease The easing function to manage the pace of change in the animation.
-   * @param duration The length of time to show the animation, in milliseconds.
-   * @param rotation The starting angle of the circle fill, with 0° represented at the top center
-   *    of the circle.
+   * The stroke dash offset specifies the distance between dashes in the circle's stroke.
+   * Setting the offset to a percentage of the total circumference of the circle, fills this
+   * percentage of the overall circumference of the circle.
    */
-  private _animateCircle(animateFrom: number, animateTo: number, ease: EasingFn = linearEase,
-                        duration = DURATION_DETERMINATE, rotation = 0) {
+  strokeDashOffset() {
+    // To determine how far the offset should be, we multiple the current percentage by the
+    // total circumference.
 
-    let id = ++this._lastAnimationId;
-    let startTime = Date.now();
-    let changeInValue = animateTo - animateFrom;
+    // The total circumference is calculated based on the radius we use, 45.
+    // PI * 2 * 45
+    return 251.3274 * (100 - this._value) / 100;
+  }
 
-    // No need to animate it if the values are the same
-    if (animateTo === animateFrom) {
-      this._renderArc(animateTo, rotation);
-    } else {
-      let animation = () => {
-        // If there is no requestAnimationFrame, skip ahead to the end of the animation.
-        let elapsedTime = HAS_RAF ?
-            Math.max(0, Math.min(Date.now() - startTime, duration)) :
-            duration;
 
-        this._renderArc(
-          ease(elapsedTime, animateFrom, changeInValue, duration),
-          rotation
-        );
+  /** Gets the progress value, returning the clamped value. */
+  get value() {
+    return this._value;
+  }
 
-        // Prevent overlapping animations by checking if a new animation has been called for and
-        // if the animation has lasted longer than the animation duration.
-        if (id === this._lastAnimationId && elapsedTime < duration) {
-          requestAnimationFrame(animation);
-        }
-      };
 
-      // Run the animation outside of Angular's zone, in order to avoid
-      // hitting ZoneJS and change detection on each frame.
-      this._ngZone.runOutsideAngular(animation);
+  /** Sets the progress value, clamping before setting the internal value. */
+  set value(v: number) {
+    if (v != null) {
+      this._value = MdProgressSpinner.clamp(v);
     }
   }
 
 
-  /**
-   * Starts the indeterminate animation interval, if it is not already running.
-   */
-  private _startIndeterminateAnimation() {
-    let rotationStartPoint = 0;
-    let start = startIndeterminate;
-    let end = endIndeterminate;
-    let duration = DURATION_INDETERMINATE;
-    let animate = () => {
-      this._animateCircle(start, end, materialEase, duration, rotationStartPoint);
-      // Prevent rotation from reaching Number.MAX_SAFE_INTEGER.
-      rotationStartPoint = (rotationStartPoint + end) % 100;
-      let temp = start;
-      start = -end;
-      end = -temp;
-    };
-
-    if (!this.interdeterminateInterval) {
-      this._ngZone.runOutsideAngular(() => {
-        this.interdeterminateInterval = setInterval(animate, duration + 50, 0, false);
-        animate();
-      });
-    }
-  }
-
-
-  /**
-   * Removes interval, ending the animation.
-   */
-  private _cleanupIndeterminateAnimation() {
-    this.interdeterminateInterval = null;
-  }
-
-  /**
-   * Renders the arc onto the SVG element. Proxies `getArc` while setting the proper
-   * DOM attribute on the `<path>`.
-   */
-  private _renderArc(currentValue: number, rotation = 0) {
-    if (this._path) {
-      const svgArc = getSvgArc(currentValue, rotation, this.strokeWidth);
-      this._renderer.setAttribute(this._path.nativeElement, 'd', svgArc);
-    }
+  /** Clamps a value to be between 0 and 100. */
+  static clamp(v: number) {
+    return Math.max(0, Math.min(100, v));
   }
 }
 
@@ -287,8 +163,8 @@ export class MdProgressSpinner extends _MdProgressSpinnerMixinBase
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MdSpinner extends MdProgressSpinner {
-  constructor(elementRef: ElementRef, ngZone: NgZone, renderer: Renderer2) {
-    super(renderer, elementRef, ngZone);
+  constructor() {
+    super();
     this.mode = 'indeterminate';
   }
 }

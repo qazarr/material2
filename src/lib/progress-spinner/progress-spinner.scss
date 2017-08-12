@@ -1,61 +1,93 @@
 @import '../core/style/variables';
 
+/* Animation Durations */
+$md-progress-circle-duration : 5.25s !default;
+$md-progress-circle-value-change-duration : $md-progress-circle-duration * 0.25 !default;
+$md-progress-circle-constant-rotate-duration : $md-progress-circle-duration * 0.55 !default;
+$md-progress-circle-sporadic-rotate-duration : $md-progress-circle-duration !default;
 
-// Animation Durations
-$mat-progress-spinner-duration: 5250ms !default;
-$mat-progress-spinner-constant-rotate-duration: $mat-progress-spinner-duration * 0.55 !default;
-$mat-progress-spinner-sporadic-rotate-duration: $mat-progress-spinner-duration !default;
-
-// Component sizing
-$mat-progress-spinner-stroke-width: 10px !default;
-// Height and weight of the viewport for mat-progress-spinner.
-$mat-progress-spinner-viewport-size: 100px !default;
+/** Component sizing */
+$md-progress-circle-stroke-width: 10px !default;
+$md-progress-circle-radius: 40px !default;
+$md-progress-circle-circumference: $pi * $md-progress-circle-radius * 2 !default;
+// Height and weight of the viewport for md-progress-circle.
+$md-progress-circle-viewport-size : 100px !default;
 
 
 :host {
   display: block;
-  // Height and width are provided for mat-progress-spinner to act as a default.
-  // The height and width are expected to be overwritten by application css.
-  height: $mat-progress-spinner-viewport-size;
-  width: $mat-progress-spinner-viewport-size;
-  overflow: hidden;
+  /** Height and width are provided for md-progress-circle to act as a default.
+      The height and width are expected to be overwritten by application css. */
+  height: $md-progress-circle-viewport-size;
+  width: $md-progress-circle-viewport-size;
 
-  // SVG's viewBox is defined as 0 0 100 100, this means that all SVG children will placed
-  // based on a 100px by 100px box.  Additionally all SVG sizes and locations are in reference to
-  // this viewBox.
+  /** SVG's viewBox is defined as 0 0 100 100, this means that all SVG children will placed
+      based on a 100px by 100px box.
+
+      The SVG and Circle dimensions/location:
+        SVG
+          Height: 100px
+          Width: 100px
+        Circle
+          Radius: 40px
+          Circumference: 251.3274px
+          Center x: 50px
+          Center y: 50px
+  */
   svg {
     height: 100%;
     width: 100%;
+    transform: rotate(-90deg);
     transform-origin: center;
   }
 
 
-  path {
+  circle {
     fill: transparent;
-
-    transition: stroke $swift-ease-in-duration $ease-in-out-curve-function;
+    stroke: rebeccapurple;
+    /** Stroke width of 10px defines stroke as 10% of the viewBox */
+    stroke-width: $md-progress-circle-stroke-width;
+    /** SVG circle rotations begin rotated 90deg clockwise from the circle's center top */
+    transition: stroke-dashoffset 0.225s linear;
+    /** The dash array of the circle is defined as the circumference of the circle. */
+    stroke-dasharray: $md-progress-circle-circumference;
+    /** The stroke dashoffset is used to "fill" the circle, 0px represents an full circle,
+        while the circles full circumference represents an empty circle. */
+    stroke-dashoffset: 0;
   }
 
-
-  &[mode='indeterminate'] svg {
-    animation-duration: $mat-progress-spinner-sporadic-rotate-duration,
-    $mat-progress-spinner-constant-rotate-duration;
-    animation-name: mat-progress-spinner-sporadic-rotate,
-                    mat-progress-spinner-linear-rotate;
+  &[mode="indeterminate"] {
+    animation-duration: $md-progress-circle-sporadic-rotate-duration,
+                        $md-progress-circle-constant-rotate-duration;
+    // animation-name: md-progress-circle-sporadic-rotate,
+    //                 md-progress-circle-linear-rotate;
     animation-timing-function: $ease-in-out-curve-function,
                                linear;
     animation-iteration-count: infinite;
     transition: none;
+
+    circle {
+      animation-duration: $md-progress-circle-value-change-duration * 2;
+      animation-name: md-progress-circle-value-change;
+      animation-timing-function: $ease-in-out-curve-function;
+      animation-iteration-count: infinite;
+      transition: none;
+      transform-origin: center;
+      fill: #ccc;
+
+      // stroke-dasharray: 251.327;
+      // stroke-dashoffset: 0;
+    }
   }
 }
 
 
-// Animations for indeterminate mode
-@keyframes mat-progress-spinner-linear-rotate {
+/** Animations for indeterminate mode */
+@keyframes md-progress-circle-linear-rotate {
   0%       { transform: rotate(0deg); }
   100%     { transform: rotate(360deg); }
 }
-@keyframes mat-progress-spinner-sporadic-rotate {
+@keyframes md-progress-circle-sporadic-rotate {
   12.5%    { transform: rotate( 135deg); }
   25%      { transform: rotate( 270deg); }
   37.5%    { transform: rotate( 405deg); }
@@ -64,4 +96,37 @@ $mat-progress-spinner-viewport-size: 100px !default;
   75%      { transform: rotate( 810deg); }
   87.5%    { transform: rotate( 945deg); }
   100%     { transform: rotate(1080deg); }
+}
+
+$_100: 251.327;
+$_min: $_100 * 0.03;
+$_max: $_100 * 0.8;
+
+// Gotchas:
+// - Edge doesn't animate stroke-dashoffset, but it does animate stroke-dasharray
+// - Values have to be unitless, otherwise Edge won't animate them.
+// - Can't use 0 as the dashoffset, but can use something really close.
+@keyframes md-progress-circle-value-change {
+  0% {
+    stroke-dasharray: $_min, $_100;
+    stroke-dashoffset: 0.1px;
+  };
+
+  50% {
+    stroke-dasharray: $_max, $_100;
+    stroke-dashoffset: 0.1px;
+  };
+
+  50.01% {
+    stroke-dasharray: $_max, $_100;
+    stroke-dashoffset: ($_max + $_100) * -1px;
+  }
+
+  100% {
+    stroke-dasharray: $_min, $_100;
+    stroke-dashoffset: ($_max + $_100) * -1px;
+
+    @debug $_min, $_100 * 1px;
+    @debug ($_max + $_100) * -1px;
+  }
 }
