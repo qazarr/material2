@@ -32,7 +32,7 @@ import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
 
 
-describe('MdAutocomplete', () => {
+fdescribe('MdAutocomplete', () => {
   let overlayContainerElement: HTMLElement;
   let dir: Direction;
   let scrolledSubject = new Subject();

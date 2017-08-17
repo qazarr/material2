@@ -32,7 +32,7 @@ import {
 } from '@angular/cdk/testing';
 
 
-describe('MdMenu', () => {
+fdescribe('MdMenu', () => {
   let overlayContainerElement: HTMLElement;
   let dir: Direction;
 
@@ -974,7 +974,7 @@ describe('MdMenu', () => {
           .not.toContain('mat-elevation-z3', 'Expected no stacked elevation.');
     });
 
-    it('should close all of the menus when the root is closed programmatically', fakeAsync(() => {
+    it('should close all of the menus when the root is closed programmatically', () => {
       compileTestComponent();
       instance.rootTrigger.openMenu();
       fixture.detectChanges();
@@ -991,10 +991,9 @@ describe('MdMenu', () => {
 
       instance.rootTrigger.closeMenu();
       fixture.detectChanges();
-      tick(500);
 
       expect(overlay.querySelectorAll('.mat-menu-panel').length).toBe(0, 'Expected no open menus');
-    }));
+    });
 
     it('should toggle a nested menu when its trigger is added after init', fakeAsync(() => {
       compileTestComponent();

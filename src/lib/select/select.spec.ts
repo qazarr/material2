@@ -42,7 +42,7 @@ import {
 import {extendObject} from '../core/util/object-extend';
 
 
-describe('MdSelect', () => {
+fdescribe('MdSelect', () => {
   let overlayContainerElement: HTMLElement;
   let dir: {value: 'ltr'|'rtl'};
   let scrolledSubject = new Subject();

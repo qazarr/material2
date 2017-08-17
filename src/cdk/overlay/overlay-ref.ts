@@ -11,6 +11,7 @@ import {PortalHost, Portal} from '@angular/cdk/portal';
 import {OverlayState} from './overlay-state';
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
+import {first} from 'rxjs/operator/first';
 
 
 /**
@@ -60,6 +61,13 @@ export class OverlayRef implements PortalHost {
     if (this._state.scrollStrategy) {
       this._state.scrollStrategy.enable();
     }
+
+    // Update the position once the zone is stable so that the overlay will be fully rendered
+    // before attempting to position it, as the position may depend on the size of the rendered
+    // content.
+    first.call(this._ngZone.onStable).subscribe(() => {
+      this.updatePosition();
+    });
 
     // Enable pointer events for the overlay pane element.
     this._togglePointerEvents(true);
