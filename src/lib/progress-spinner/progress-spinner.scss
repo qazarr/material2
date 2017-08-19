@@ -59,21 +59,22 @@ $md-progress-circle-viewport-size : 100px !default;
   &[mode="indeterminate"] {
     animation-duration: $md-progress-circle-sporadic-rotate-duration,
                         $md-progress-circle-constant-rotate-duration;
-    // animation-name: md-progress-circle-sporadic-rotate,
-    //                 md-progress-circle-linear-rotate;
+    animation-name: md-progress-circle-sporadic-rotate,
+                    md-progress-circle-linear-rotate;
     animation-timing-function: $ease-in-out-curve-function,
                                linear;
     animation-iteration-count: infinite;
     transition: none;
 
     circle {
-      animation-duration: $md-progress-circle-value-change-duration;
+      animation-duration: 667ms * 8;
       animation-name: md-progress-circle-value-change;
       animation-timing-function: $ease-in-out-curve-function;
       animation-iteration-count: infinite;
       transition: none;
       transform-origin: center;
-      fill: #ccc;
+      will-change: stroke-dashoffset;
+      // fill: #ccc;
 
       // stroke-dasharray: 251.327;
       // stroke-dashoffset: 0;
@@ -98,54 +99,54 @@ $md-progress-circle-viewport-size : 100px !default;
   100%     { transform: rotate(1080deg); }
 }
 
-$_100: 251.327;
-$_min: (1 - 0.03) * $_100; // start animating from 3% of the circumference
-$_max: (1 - 0.7) * $_100; // animate to 70% of the circumference
+$_100: 251.327px;
+$_min: (1 - 0.05) * $_100; // start animating from 3% of the circumference
+$_max: (1 - 0.8) * $_100; // animate to 70% of the circumference
+
+@keyframes md-progress-circle-value-change {
+  0%      { stroke-dashoffset: $_min; transform: rotate(0); }
+  12.5%   { stroke-dashoffset: $_max; transform: rotate(0); }
+  12.51%  { stroke-dashoffset: $_max; transform: rotateX(180deg) rotate(72.5deg); }
+  25%     { stroke-dashoffset: $_min; transform: rotateX(180deg) rotate(72.5deg); }
+
+  25.1%   { stroke-dashoffset: $_min; transform: rotate(270deg); }
+  37.5%   { stroke-dashoffset: $_max; transform: rotate(270deg); }
+  37.51%  { stroke-dashoffset: $_max; transform: rotateX(180deg) rotate(161.5deg); }
+  50%     { stroke-dashoffset: $_min; transform: rotateX(180deg) rotate(161.5deg); }
+
+  50.01%  { stroke-dashoffset: $_min; transform: rotate(180deg); }
+  62.5%   { stroke-dashoffset: $_max; transform: rotate(180deg); }
+  62.51%  { stroke-dashoffset: $_max; transform: rotateX(180deg) rotate(251.5deg); }
+  75%     { stroke-dashoffset: $_min; transform: rotateX(180deg) rotate(251.5deg); }
+
+  75.01%  { stroke-dashoffset: $_min; transform: rotate(90deg); }
+  87.5%   { stroke-dashoffset: $_max; transform: rotate(90deg); }
+  87.51%  { stroke-dashoffset: $_max; transform: rotateX(180deg) rotate(341.5deg); }
+  100%    { stroke-dashoffset: $_min; transform: rotateX(180deg) rotate(341.5deg); }
+}
 
 // Gotchas:
 // - Edge doesn't animate stroke-dashoffset, but it does animate stroke-dasharray
 // - Values have to be unitless, otherwise Edge won't animate them.
 // - Can't use 0 as the dashoffset, but can use something really close.
-@keyframes md-progress-circle-value-change-dasharay {
-  0% {
-    stroke-dasharray: $_min, $_100;
-    stroke-dashoffset: 0.1px;
-  };
+// @keyframes md-progress-circle-value-change-dasharay {
+//   0% {
+//     stroke-dasharray: $_min, $_100;
+//     stroke-dashoffset: 0.1px;
+//   };
 
-  50% {
-    stroke-dasharray: $_max, $_100;
-    stroke-dashoffset: 0.1px;
-  };
+//   50% {
+//     stroke-dasharray: $_max, $_100;
+//     stroke-dashoffset: 0.1px;
+//   };
 
-  50.01% {
-    stroke-dasharray: $_max, $_100;
-    stroke-dashoffset: ($_max + $_100) * -1px;
-  }
+//   50.01% {
+//     stroke-dasharray: $_max, $_100;
+//     stroke-dashoffset: ($_max + $_100) * -1px;
+//   }
 
-  100% {
-    stroke-dasharray: $_min, $_100;
-    stroke-dashoffset: ($_max + $_100) * -1px;
-  }
-}
-
-@keyframes md-progress-circle-value-change {
-  0% {
-    stroke-dashoffset: $_min;
-    transform: rotate(0);
-  };
-
-  50% {
-    stroke-dashoffset: $_max;
-    transform: rotate(0);
-  };
-
-  50.01% {
-    stroke-dashoffset: $_max;
-    transform: rotateX(180deg) rotate(108deg);
-  }
-
-  100% {
-    stroke-dashoffset: $_min;
-    transform: rotateX(180deg) rotate(108deg);
-  }
-}
+//   100% {
+//     stroke-dasharray: $_min, $_100;
+//     stroke-dashoffset: ($_max + $_100) * -1px;
+//   }
+// }
