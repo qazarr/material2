@@ -7,46 +7,32 @@ $md-progress-circle-constant-rotate-duration : $md-progress-circle-duration * 0.
 $md-progress-circle-sporadic-rotate-duration : $md-progress-circle-duration !default;
 
 /** Component sizing */
-$md-progress-circle-stroke-width: 10px !default;
-$md-progress-circle-radius: 40px !default;
+$md-progress-circle-radius: 45px !default;
 $md-progress-circle-circumference: $pi * $md-progress-circle-radius * 2 !default;
 // Height and weight of the viewport for md-progress-circle.
 $md-progress-circle-viewport-size : 100px !default;
 
+$_min: (1 - 0.05) * $md-progress-circle-circumference; // start animating from 5% of the circumference
+$_max: (1 - 0.8) * $md-progress-circle-circumference; // animate to 80% of the circumference
+
 
 :host {
-  display: block;
-  /** Height and width are provided for md-progress-circle to act as a default.
-      The height and width are expected to be overwritten by application css. */
-  height: $md-progress-circle-viewport-size;
-  width: $md-progress-circle-viewport-size;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
 
-  /** SVG's viewBox is defined as 0 0 100 100, this means that all SVG children will placed
-      based on a 100px by 100px box.
-
-      The SVG and Circle dimensions/location:
-        SVG
-          Height: 100px
-          Width: 100px
-        Circle
-          Radius: 40px
-          Circumference: 251.3274px
-          Center x: 50px
-          Center y: 50px
-  */
   svg {
-    height: 100%;
-    width: 100%;
-    transform: rotate(-90deg);
+    position: absolute;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    top: 50%;
+    left: 50%;
     transform-origin: center;
+    overflow: visible;
   }
-
 
   circle {
     fill: transparent;
     stroke: rebeccapurple;
-    /** Stroke width of 10px defines stroke as 10% of the viewBox */
-    stroke-width: $md-progress-circle-stroke-width;
     /** SVG circle rotations begin rotated 90deg clockwise from the circle's center top */
     transition: stroke-dashoffset 0.225s linear;
     /** The dash array of the circle is defined as the circumference of the circle. */
@@ -74,10 +60,6 @@ $md-progress-circle-viewport-size : 100px !default;
       transition: none;
       transform-origin: center;
       will-change: stroke-dashoffset;
-      // fill: #ccc;
-
-      // stroke-dasharray: 251.327;
-      // stroke-dashoffset: 0;
     }
   }
 }
@@ -98,10 +80,6 @@ $md-progress-circle-viewport-size : 100px !default;
   87.5%    { transform: rotate( 945deg); }
   100%     { transform: rotate(1080deg); }
 }
-
-$_100: 251.327px;
-$_min: (1 - 0.05) * $_100; // start animating from 3% of the circumference
-$_max: (1 - 0.8) * $_100; // animate to 70% of the circumference
 
 @keyframes md-progress-circle-value-change {
   0%      { stroke-dashoffset: $_min; transform: rotate(0); }
@@ -131,22 +109,22 @@ $_max: (1 - 0.8) * $_100; // animate to 70% of the circumference
 // - Can't use 0 as the dashoffset, but can use something really close.
 // @keyframes md-progress-circle-value-change-dasharay {
 //   0% {
-//     stroke-dasharray: $_min, $_100;
+//     stroke-dasharray: $_min, $md-progress-circle-circumference;
 //     stroke-dashoffset: 0.1px;
 //   };
 
 //   50% {
-//     stroke-dasharray: $_max, $_100;
+//     stroke-dasharray: $_max, $md-progress-circle-circumference;
 //     stroke-dashoffset: 0.1px;
 //   };
 
 //   50.01% {
-//     stroke-dasharray: $_max, $_100;
-//     stroke-dashoffset: ($_max + $_100) * -1px;
+//     stroke-dasharray: $_max, $md-progress-circle-circumference;
+//     stroke-dashoffset: ($_max + $md-progress-circle-circumference) * -1px;
 //   }
 
 //   100% {
-//     stroke-dasharray: $_min, $_100;
-//     stroke-dashoffset: ($_max + $_100) * -1px;
+//     stroke-dasharray: $_min, $md-progress-circle-circumference;
+//     stroke-dashoffset: ($_max + $md-progress-circle-circumference) * -1px;
 //   }
 // }

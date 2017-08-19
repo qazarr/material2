@@ -11,6 +11,8 @@ export class ProgressSpinnerDemo {
   progressValue = 60;
   color = 'primary';
   isDeterminate = true;
+  size = 100;
+  strokeWidth = 10;
 
   step(val: number) {
     this.progressValue = Math.max(0, Math.min(100, val + this.progressValue));

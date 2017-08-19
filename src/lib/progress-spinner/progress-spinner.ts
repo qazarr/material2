@@ -17,6 +17,8 @@ import {
   Directive,
   ViewChild,
   HostBinding,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import {CanColor, mixinColor} from '../core/common-behaviors/color';
 
@@ -71,6 +73,8 @@ export const _MdProgressSpinnerMixinBase = mixinColor(MdProgressSpinnerBase, 'pr
   selector: 'md-progress-spinner, mat-progress-spinner',
   host: {
     'role': 'progressbar',
+    '[style.width.px]': '_elementSize',
+    '[style.height.px]': '_elementSize',
     '[attr.aria-valuemin]': '_ariaValueMin',
     '[attr.aria-valuemax]': '_ariaValueMax',
     '[attr.aria-valuenow]': 'value',
@@ -81,7 +85,7 @@ export const _MdProgressSpinnerMixinBase = mixinColor(MdProgressSpinnerBase, 'pr
   styleUrls: ['progress-spinner.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MdProgressSpinner {
+export class MdProgressSpinner implements OnChanges {
 
   /**
    * Value of the progress circle.
@@ -102,8 +106,18 @@ export class MdProgressSpinner {
   @HostBinding('attr.mode')
   @Input() mode: 'determinate' | 'indeterminate' = 'determinate';
 
-  @Input() strokeWidth: any;
+  private readonly _baseSize = 100;
+  private readonly _baseStrokeWidth = 10;
+  _elementSize = this._baseSize;
+  _circleRadius = 45;
 
+  @Input() strokeWidth: number = 10;
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.strokeWidth) {
+      this._elementSize = this._baseSize + Math.max(this.strokeWidth - this._baseStrokeWidth, 0);
+    }
+  }
 
   /**
    * Gets the current stroke dash offset to represent the progress circle.
@@ -118,7 +132,7 @@ export class MdProgressSpinner {
 
     // The total circumference is calculated based on the radius we use, 45.
     // PI * 2 * 45
-    return 251.3274 * (100 - this._value) / 100;
+    return 2 * Math.PI * this._circleRadius * (100 - this._value) / 100;
   }
 
 
