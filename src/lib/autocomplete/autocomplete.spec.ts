@@ -1222,17 +1222,19 @@ describe('MdAutocomplete', () => {
       inputReference = fixture.debugElement.query(By.css('.mat-input-flex')).nativeElement;
     });
 
-    it('should use below positioning by default', () => {
+    it('should use below positioning by default', async(() => {
       fixture.componentInstance.trigger.openPanel();
       fixture.detectChanges();
 
-      const inputBottom = inputReference.getBoundingClientRect().bottom;
-      const panel = overlayContainerElement.querySelector('.mat-autocomplete-panel')!;
-      const panelTop = panel.getBoundingClientRect().top;
+      fixture.whenStable().then(() => {
+        const inputBottom = inputReference.getBoundingClientRect().bottom;
+        const panel = overlayContainerElement.querySelector('.mat-autocomplete-panel')!;
+        const panelTop = panel.getBoundingClientRect().top;
 
-      expect(Math.floor(inputBottom))
-          .toEqual(Math.floor(panelTop), `Expected panel top to match input bottom by default.`);
-    });
+        expect(Math.floor(inputBottom))
+            .toEqual(Math.floor(panelTop), `Expected panel top to match input bottom by default.`);
+      });
+    }));
 
     it('should reposition the panel on scroll', () => {
       const spacer = document.createElement('div');
@@ -1248,7 +1250,7 @@ describe('MdAutocomplete', () => {
       fixture.detectChanges();
 
       const inputBottom = inputReference.getBoundingClientRect().bottom;
-      const panel = overlayContainerElement.querySelector('.mat-autocomplete-panel')!;
+      const panel = overlayContainerElement.querySelector('.cdk-overlay-pane')!;
       const panelTop = panel.getBoundingClientRect().top;
 
       expect(Math.floor(inputBottom)).toEqual(Math.floor(panelTop),
@@ -1257,7 +1259,7 @@ describe('MdAutocomplete', () => {
       document.body.removeChild(spacer);
     });
 
-    it('should fall back to above position if panel cannot fit below', () => {
+    it('should fall back to above position if panel cannot fit below', async(() => {
       // Push the autocomplete trigger down so it won't have room to open "below"
       inputReference.style.top = '600px';
       inputReference.style.position = 'relative';
@@ -1265,13 +1267,15 @@ describe('MdAutocomplete', () => {
       fixture.componentInstance.trigger.openPanel();
       fixture.detectChanges();
 
-      const inputTop = inputReference.getBoundingClientRect().top;
-      const panel = overlayContainerElement.querySelector('.mat-autocomplete-panel')!;
-      const panelBottom = panel.getBoundingClientRect().bottom;
+      fixture.whenStable().then(() => {
+        const inputTop = inputReference.getBoundingClientRect().top;
+        const panel = overlayContainerElement.querySelector('.cdk-overlay-pane')!;
+        const panelBottom = panel.getBoundingClientRect().bottom;
 
-      expect(Math.floor(inputTop))
-          .toEqual(Math.floor(panelBottom), `Expected panel to fall back to above position.`);
-    });
+        expect(Math.floor(inputTop))
+            .toEqual(Math.floor(panelBottom), `Expected panel to fall back to above position.`);
+      });
+    }));
 
     it('should align panel properly when filtering in "above" position', async(() => {
       // Push the autocomplete trigger down so it won't have room to open "below"

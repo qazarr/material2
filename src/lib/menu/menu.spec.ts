@@ -32,7 +32,7 @@ import {
 } from '@angular/cdk/testing';
 
 
-fdescribe('MdMenu', () => {
+describe('MdMenu', () => {
   let overlayContainerElement: HTMLElement;
   let dir: Direction;
 
@@ -364,8 +364,8 @@ fdescribe('MdMenu', () => {
      * subject.openMenu();
      */
     class OverlapSubject<T extends TestableMenu> {
-      private readonly fixture: ComponentFixture<T>;
-      private readonly trigger: any;
+      readonly fixture: ComponentFixture<T>;
+      readonly trigger: any;
 
       constructor(ctor: {new(): T; }, inputs: {[key: string]: any} = {}) {
         this.fixture = TestBed.createComponent(ctor);
@@ -382,6 +382,7 @@ fdescribe('MdMenu', () => {
       updateTriggerStyle(style: any) {
         return extendObject(this.trigger.style, style);
       }
+
 
       get overlayRect() {
         return this.overlayPane.getBoundingClientRect();
@@ -444,11 +445,11 @@ fdescribe('MdMenu', () => {
 
       it('repositions the origin to be below, so the menu opens from the trigger', () => {
         subject.openMenu();
+        subject.fixture.detectChanges();
 
         expect(subject.menuPanel!.classList).toContain('mat-menu-below');
         expect(subject.menuPanel!.classList).not.toContain('mat-menu-above');
       });
-
     });
   });
 
@@ -805,7 +806,7 @@ fdescribe('MdMenu', () => {
       fixture.detectChanges();
 
       const triggerRect = overlay.querySelector('#level-one-trigger')!.getBoundingClientRect();
-      const panelRect = overlay.querySelectorAll('.mat-menu-panel')[1].getBoundingClientRect();
+      const panelRect = overlay.querySelectorAll('.cdk-overlay-pane')[1].getBoundingClientRect();
 
       expect(Math.round(triggerRect.right)).toBe(Math.round(panelRect.left));
       expect(Math.round(triggerRect.top)).toBe(Math.round(panelRect.top) + MENU_PANEL_TOP_PADDING);
@@ -823,7 +824,7 @@ fdescribe('MdMenu', () => {
       fixture.detectChanges();
 
       const triggerRect = overlay.querySelector('#level-one-trigger')!.getBoundingClientRect();
-      const panelRect = overlay.querySelectorAll('.mat-menu-panel')[1].getBoundingClientRect();
+      const panelRect = overlay.querySelectorAll('.cdk-overlay-pane')[1].getBoundingClientRect();
 
       expect(Math.round(triggerRect.left)).toBe(Math.round(panelRect.right));
       expect(Math.round(triggerRect.top)).toBe(Math.round(panelRect.top) + MENU_PANEL_TOP_PADDING);
@@ -842,13 +843,13 @@ fdescribe('MdMenu', () => {
       fixture.detectChanges();
 
       const triggerRect = overlay.querySelector('#level-one-trigger')!.getBoundingClientRect();
-      const panelRect = overlay.querySelectorAll('.mat-menu-panel')[1].getBoundingClientRect();
+      const panelRect = overlay.querySelectorAll('.cdk-overlay-pane')[1].getBoundingClientRect();
 
       expect(Math.round(triggerRect.left)).toBe(Math.round(panelRect.right));
       expect(Math.round(triggerRect.top)).toBe(Math.round(panelRect.top) + MENU_PANEL_TOP_PADDING);
     });
 
-    fit('should fall back to aligning to the right edge of the trigger in rtl', fakeAsync(() => {
+    it('should fall back to aligning to the right edge of the trigger in rtl', fakeAsync(() => {
       dir = 'rtl';
       compileTestComponent();
       instance.rootTriggerEl.nativeElement.style.position = 'fixed';
@@ -856,18 +857,14 @@ fdescribe('MdMenu', () => {
       instance.rootTriggerEl.nativeElement.style.top = '50%';
       instance.rootTrigger.openMenu();
       fixture.detectChanges();
-      tick(1000);
+      tick(500);
 
       instance.levelOneTrigger.openMenu();
       fixture.detectChanges();
-      tick(1000);
-
-
-      fixture.detectChanges();
-      tick(1000);
+      tick(500);
 
       const triggerRect = overlay.querySelector('#level-one-trigger')!.getBoundingClientRect();
-      const panelRect = overlay.querySelectorAll('.mat-menu-panel')[1].getBoundingClientRect();
+      const panelRect = overlay.querySelectorAll('.cdk-overlay-pane')[1].getBoundingClientRect();
 
       expect(Math.round(triggerRect.right)).toBe(Math.round(panelRect.left));
       expect(Math.round(triggerRect.top)).toBe(Math.round(panelRect.top) + MENU_PANEL_TOP_PADDING);
