@@ -48,6 +48,7 @@ import {
   ViewportRuler
 } from '@angular/cdk/overlay';
 import {merge} from 'rxjs/observable/merge';
+import {first} from 'rxjs/operator/first';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import {fadeInContent, transformPanel, transformPlaceholder} from './select-animations';
@@ -648,8 +649,10 @@ export class MdSelect extends _MdSelectMixinBase implements AfterContentInit, On
    * Callback that is invoked when the overlay panel has been attached.
    */
   _onAttached(): void {
-    this._calculateOverlayOffsetX();
-    this._setScrollTop();
+    first.call(this.overlayDir.positionChange).subscribe(() => {
+      this._calculateOverlayOffsetX();
+      this._setScrollTop();
+    });
   }
 
   /** Whether the select has a value. */
