@@ -1648,9 +1648,12 @@ fdescribe('MdSelect', () => {
           });
         }));
 
-      it('should align the first option to the trigger, if nothing is selected', fakeAsync(() => {
+      fit('should align the first option to the trigger, if nothing is selected', fakeAsync(() => {
         trigger.click();
         groupFixture.detectChanges();
+        tick();
+        tick();
+        tick();
 
         const triggerTop = trigger.getBoundingClientRect().top;
 
