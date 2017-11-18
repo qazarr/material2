@@ -17,7 +17,6 @@ import {
   OnDestroy,
   Optional,
   Output,
-  Renderer2,
   SimpleChanges,
   TemplateRef,
   ViewContainerRef,
@@ -100,7 +99,6 @@ export class CdkConnectedOverlay implements OnDestroy, OnChanges {
   private _offsetX: number = 0;
   private _offsetY: number = 0;
   private _position: ConnectedPositionStrategy;
-  private _escapeListener = () => {};
 
   /** Origin for the connected overlay. */
   @Input('cdkConnectedOverlayOrigin') origin: CdkOverlayOrigin;
@@ -233,7 +231,6 @@ export class CdkConnectedOverlay implements OnDestroy, OnChanges {
 
   constructor(
       private _overlay: Overlay,
-      private _renderer: Renderer2,
       templateRef: TemplateRef<any>,
       viewContainerRef: ViewContainerRef,
       @Inject(CDK_CONNECTED_OVERLAY_SCROLL_STRATEGY) private _scrollStrategy,
@@ -334,11 +331,16 @@ export class CdkConnectedOverlay implements OnDestroy, OnChanges {
   private _attachOverlay() {
     if (!this._overlayRef) {
       this._createOverlay();
+
+      this._overlayRef!.keydownEvents().subscribe((event: KeyboardEvent) => {
+        if (event.keyCode === ESCAPE) {
+          this._detachOverlay();
+        }
+      });
     }
 
     this._position.withDirection(this.dir);
     this._overlayRef.getConfig().direction = this.dir;
-    this._initEscapeListener();
 
     if (!this._overlayRef.hasAttached()) {
       this._overlayRef.attach(this._templatePortal);
@@ -360,7 +362,6 @@ export class CdkConnectedOverlay implements OnDestroy, OnChanges {
     }
 
     this._backdropSubscription.unsubscribe();
-    this._escapeListener();
   }
 
   /** Destroys the overlay created by this directive. */
@@ -371,15 +372,5 @@ export class CdkConnectedOverlay implements OnDestroy, OnChanges {
 
     this._backdropSubscription.unsubscribe();
     this._positionSubscription.unsubscribe();
-    this._escapeListener();
-  }
-
-  /** Sets the event listener that closes the overlay when pressing Escape. */
-  private _initEscapeListener() {
-    this._escapeListener = this._renderer.listen('document', 'keydown', (event: KeyboardEvent) => {
-      if (event.keyCode === ESCAPE) {
-        this._detachOverlay();
-      }
-    });
   }
 }
