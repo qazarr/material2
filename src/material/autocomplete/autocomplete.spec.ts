@@ -2431,6 +2431,16 @@ describe('MatAutocomplete', () => {
     expect(formControl.value).toBe('Cal', 'Expected new value to be propagated to model');
   }));
 
+  it('should evaluate `displayWith` before assigning the initial value', fakeAsync(() => {
+    const fixture = createComponent(PreselectedAutocompleteDisplayWith);
+    const input = fixture.nativeElement.querySelector('input');
+
+    fixture.detectChanges();
+    flush();
+
+    expect(input.value).toBe('Alaska');
+  }));
+
 });
 
 @Component({
@@ -2820,4 +2830,30 @@ class AutocompleteWithNativeAutocompleteAttribute {
   template: '<input [matAutocomplete]="null" matAutocompleteDisabled>'
 })
 class InputWithoutAutocompleteAndDisabled {
+}
+
+
+@Component({
+  template: `
+    <mat-form-field>
+      <input matInput [matAutocomplete]="auto" [formControl]="stateCtrl">
+    </mat-form-field>
+
+    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+      <mat-option *ngFor="let state of states" [value]="state">
+        <span>{{ state.name }}</span>
+      </mat-option>
+    </mat-autocomplete>
+  `
+})
+class PreselectedAutocompleteDisplayWith {
+  stateCtrl = new FormControl({code: 'AK', name: 'Alaska'});
+  states = [
+    {code: 'AL', name: 'Alabama'},
+    {code: 'AK', name: 'Alaska'}
+  ];
+
+  displayFn(value: any): string {
+    return value && typeof value === 'object' ? value.name : value;
+  }
 }
