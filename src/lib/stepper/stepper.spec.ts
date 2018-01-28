@@ -139,6 +139,10 @@ describe('MatHorizontalStepper', () => {
       assertCorrectStepIcon(fixture, false, 'done');
     });
 
+    it('should consider step as interacted with as soon as the user lands on it', () => {
+      assertStepInteractedOnActivate(fixture);
+    });
+
     it('should re-render when the i18n labels change',
       inject([MatStepperIntl], (intl: MatStepperIntl) => {
         const header = fixture.debugElement.queryAll(By.css('mat-step-header'))[2].nativeElement;
@@ -209,6 +213,10 @@ describe('MatHorizontalStepper', () => {
           .queryAll(By.css('.mat-horizontal-stepper-header'))[2].nativeElement;
 
       assertLinearStepperPending(stepHeaderEl, testComponent, fixture);
+    });
+
+    it('should consider optional step as completed if the user skips over it', () => {
+      assertOptionalStepSkipCompletion(fixture.componentInstance, fixture);
     });
 
     it('should not focus step header upon click if it is not able to be selected', () => {
@@ -387,6 +395,10 @@ describe('MatVerticalStepper', () => {
     it('should set done icon if step is not editable and is completed', () => {
       assertCorrectStepIcon(fixture, false, 'done');
     });
+
+    it('should consider step as interacted with as soon as the user lands on it', () => {
+      assertStepInteractedOnActivate(fixture);
+    });
   });
 
   describe('RTL', () => {
@@ -444,6 +456,10 @@ describe('MatVerticalStepper', () => {
           .queryAll(By.css('.mat-vertical-stepper-header'))[2].nativeElement;
 
       assertLinearStepperPending(stepHeaderEl, testComponent, fixture);
+    });
+
+    it('should consider optional step as completed if the user skips over it', () => {
+      assertOptionalStepSkipCompletion(fixture.componentInstance, fixture);
     });
 
     it('should not focus step header upon click if it is not able to be selected', () => {
@@ -545,6 +561,19 @@ function assertNextStepperButtonClick(fixture: ComponentFixture<any>) {
   fixture.detectChanges();
 
   expect(stepperComponent.selectedIndex).toBe(2);
+}
+
+/** Asserts that a step is considered interacted with when the user lands on it. */
+function assertStepInteractedOnActivate(fixture: ComponentFixture<any>) {
+  const stepperComponent: MatStepper =
+      fixture.debugElement.query(By.directive(MatStepper)).componentInstance;
+
+  expect(stepperComponent._steps.toArray()[1].interacted).toBe(false);
+
+  stepperComponent.selectedIndex = 1;
+  fixture.detectChanges();
+
+  expect(stepperComponent._steps.toArray()[1].interacted).toBe(true);
 }
 
 /** Asserts that the specified type of stepper button has the given type. */
@@ -934,6 +963,22 @@ function assertLinearStepperResetable(
   expect(testComponent.twoGroup.get('twoCtrl')!.valid).toBe(false);
 }
 
+
+/** Asserts that an optional step is considered as completed if the user skips over it. */
+function assertOptionalStepSkipCompletion(testComponent:
+  LinearMatHorizontalStepperApp|LinearMatVerticalStepperApp, fixture: ComponentFixture<any>) {
+  const stepperComponent: MatStepper = fixture.debugElement
+    .query(By.directive(MatStepper)).componentInstance;
+
+  testComponent.oneGroup.get('oneCtrl')!.setValue('input');
+  testComponent.twoGroup.get('twoCtrl')!.setValue('input');
+  testComponent.validationTrigger.next();
+  stepperComponent.selectedIndex = 3;
+  fixture.detectChanges();
+
+  expect(stepperComponent._steps.toArray()[2].completed).toBe(true);
+  expect(stepperComponent.selectedIndex).toBe(3);
+}
 
 @Component({
   template: `

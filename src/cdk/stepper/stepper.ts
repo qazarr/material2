@@ -7,6 +7,7 @@
  */
 
 import {
+  AfterContentChecked,
   ContentChildren,
   EventEmitter,
   Input,
@@ -25,7 +26,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   OnChanges,
-  OnDestroy
+  OnDestroy,
 } from '@angular/core';
 import {LEFT_ARROW, RIGHT_ARROW, DOWN_ARROW, UP_ARROW, ENTER, SPACE} from '@angular/cdk/keycodes';
 import {CdkStepLabel} from './step-label';
@@ -33,6 +34,8 @@ import {coerceBooleanProperty} from '@angular/cdk/coercion';
 import {AbstractControl} from '@angular/forms';
 import {Direction, Directionality} from '@angular/cdk/bidi';
 import {Subject} from 'rxjs/Subject';
+import {Subscription} from 'rxjs/Subscription';
+import {startWith} from 'rxjs/operators/startWith';
 
 /** Used to generate unique ID for each stepper component. */
 let nextId = 0;
@@ -70,7 +73,7 @@ export class StepperSelectionEvent {
   preserveWhitespaces: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CdkStep implements OnChanges {
+export class CdkStep implements AfterContentChecked, OnChanges {
   /** Template for step label if it exists. */
   @ContentChild(CdkStepLabel) stepLabel: CdkStepLabel;
 
@@ -85,6 +88,10 @@ export class CdkStep implements OnChanges {
 
   /** Label of the step. */
   @Input() label: string;
+
+  /** Step that comes after the current one. */
+  private _nextStep: CdkStep | undefined;
+  private _stepChanges: Subscription;
 
   /** Whether the user can return to this step once it has been marked as complted. */
   @Input()
@@ -113,7 +120,13 @@ export class CdkStep implements OnChanges {
   private _customCompleted: boolean | null = null;
 
   private get _defaultCompleted() {
-    return this.stepControl ? this.stepControl.valid && this.interacted : this.interacted;
+    const interactedOrSkipped = this.interacted || !!(this._nextStep && this._nextStep.completed);
+
+    if (this.stepControl) {
+      return (this.stepControl.valid || this.optional) && interactedOrSkipped;
+    }
+
+    return interactedOrSkipped;
   }
 
   constructor(@Inject(forwardRef(() => CdkStepper)) private _stepper: CdkStepper) { }
@@ -130,6 +143,19 @@ export class CdkStep implements OnChanges {
 
     if (this.stepControl) {
       this.stepControl.reset();
+    }
+  }
+
+  ngAfterContentChecked() {
+    if (!this._stepChanges && this._stepper._steps) {
+      // Note: we do the subscription inside `AfterContentChecked`, because depending on how the
+      // component is being rendered (e.g. straight-up or by a repeater) the `_steps` may not be
+      // defined yet in `AfterContentInit`.
+      this._stepChanges = this._stepper._steps.changes.pipe(startWith(null)).subscribe(() => {
+        const steps = this._stepper._steps.toArray();
+        const index = steps.indexOf(this);
+        this._nextStep = index > -1 ? steps[index + 1] : undefined;
+      });
     }
   }
 
@@ -177,6 +203,7 @@ export class CdkStepper implements OnDestroy {
       } else if (this._selectedIndex != index) {
         this._emitStepperSelectionEvent(index);
         this._focusIndex = this._selectedIndex;
+        this.selected.interacted = true;
       }
     } else {
       this._selectedIndex = this._focusIndex = index;
