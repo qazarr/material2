@@ -111,7 +111,8 @@ System.config({
     // Set the default extension for the root package, because otherwise the demo-app can't
     // be built within the production mode. Due to missing file extensions.
     '.': {
-      defaultExtension: 'js'
+      defaultExtension: 'js',
+      format: 'cjs'
     }
   }
 });
@@ -119,7 +120,12 @@ System.config({
 // Configure the Angular test bed and run all specs once configured.
  configureTestBed()
   .then(runMaterialSpecs)
-  .then(__karma__.start, __karma__.error);
+  .then(__karma__.start, function(error) {
+    // We should log out the stack trace ourselves, because the
+    // way Karma does it isn't particularly helpful.
+    console.error(error.originalErr.stack);
+    __karma__.error(error);
+  });
 
 
 /** Runs the Angular Material specs in Karma. */

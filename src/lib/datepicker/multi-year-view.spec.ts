@@ -85,7 +85,6 @@ describe('MatMultiYearView', () => {
 
   describe('multi year view with date filter', () => {
     let fixture: ComponentFixture<MultiYearViewWithDateFilter>;
-    let testComponent: MultiYearViewWithDateFilter;
     let multiYearViewNativeElement: Element;
 
     beforeEach(() => {
@@ -94,7 +93,6 @@ describe('MatMultiYearView', () => {
 
       const multiYearViewDebugElement = fixture.debugElement.query(By.directive(MatMultiYearView));
       multiYearViewNativeElement = multiYearViewDebugElement.nativeElement;
-      testComponent = fixture.componentInstance;
     });
 
     it('should disablex years with no enabled days', () => {

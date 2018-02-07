@@ -2703,14 +2703,12 @@ describe('MatSelect', () => {
 
     let fixture: ComponentFixture<BasicSelect>;
     let trigger: HTMLElement;
-    let select: HTMLElement;
     let formField: HTMLElement;
 
     beforeEach(fakeAsync(() => {
       fixture = TestBed.createComponent(BasicSelect);
       fixture.detectChanges();
       trigger = fixture.debugElement.query(By.css('.mat-select-trigger')).nativeElement;
-      select = fixture.debugElement.query(By.css('mat-select')).nativeElement;
       formField = fixture.debugElement.query(By.css('mat-form-field')).nativeElement;
     }));
 
@@ -2846,7 +2844,6 @@ describe('MatSelect', () => {
         let groupFixture = TestBed.createComponent(SelectWithGroups);
         groupFixture.detectChanges();
         trigger = groupFixture.debugElement.query(By.css('.mat-select-trigger')).nativeElement;
-        select = groupFixture.debugElement.query(By.css('mat-select')).nativeElement;
         formField = groupFixture.debugElement.query(By.css('mat-form-field')).nativeElement;
 
         formField.style.position = 'fixed';
@@ -3359,7 +3356,6 @@ describe('MatSelect', () => {
         multiFixture.detectChanges();
         formField = multiFixture.debugElement.query(By.css('.mat-form-field')).nativeElement;
         trigger = multiFixture.debugElement.query(By.css('.mat-select-trigger')).nativeElement;
-        select = multiFixture.debugElement.query(By.css('mat-select')).nativeElement;
 
         formField.style.position = 'fixed';
         formField.style.left = '60px';
@@ -3405,7 +3401,6 @@ describe('MatSelect', () => {
         groupFixture.detectChanges();
         formField = groupFixture.debugElement.query(By.css('.mat-form-field')).nativeElement;
         trigger = groupFixture.debugElement.query(By.css('.mat-select-trigger')).nativeElement;
-        select = groupFixture.debugElement.query(By.css('mat-select')).nativeElement;
 
         formField.style.position = 'fixed';
         formField.style.left = '60px';

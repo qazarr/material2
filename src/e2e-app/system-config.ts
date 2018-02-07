@@ -91,7 +91,8 @@ System.config({
     // Set the default extension for the root package, because otherwise the demo-app can't
     // be built within the production mode. Due to missing file extensions.
     '.': {
-      defaultExtension: 'js'
+      defaultExtension: 'js',
+      format: 'cjs'
     }
   }
 });
