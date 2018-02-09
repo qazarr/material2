@@ -22,7 +22,7 @@ import {Observable} from 'rxjs/Observable';
 import {CdkScrollable} from '@angular/cdk/scrolling';
 import {isElementScrolledOutsideView, isElementClippedByScrolling} from './scroll-clip';
 import {OverlayRef} from '../overlay-ref';
-
+import {OverlayContainer} from '../overlay-container';
 
 
 /**
@@ -86,7 +86,10 @@ export class ConnectedPositionStrategy implements PositionStrategy {
       overlayPos: OverlayConnectionPosition,
       private _connectedTo: ElementRef,
       private _viewportRuler: ViewportRuler,
-      private _document: any) {
+      private _document: any,
+
+      // @deletion-target 6.0.0 _overlayContainer param to become required.
+      private _overlayContainer?: OverlayContainer) {
     this._origin = this._connectedTo.nativeElement;
     this.withFallbackPosition(originPos, overlayPos);
   }
@@ -429,7 +432,17 @@ export class ConnectedPositionStrategy implements PositionStrategy {
     // changed since the last `apply`.
     ['top', 'bottom', 'left', 'right'].forEach(p => element.style[p] = null);
 
-    element.style[verticalStyleProperty] = `${y}px`;
+    const deviceOffset = this._overlayContainer ?
+        this._overlayContainer.getContainerElement().getBoundingClientRect().top :
+        0;
+
+    console.log(deviceOffset, !!this._overlayContainer);
+
+    // Account for the device offsetting the overlay container and throwing our positioning off.
+    // This usually happens on iOS when the overlay is opened as a part of an input being focused
+    // (e.g. an autocomplete panel). When the OS scrolls the input so it's completely visible,
+    // it'll move the entire page up by the height of the keyboard.
+    element.style[verticalStyleProperty] = `${y - deviceOffset}px`;
     element.style[horizontalStyleProperty] = `${x}px`;
 
     // Notify that the position has been changed along with its change properties.

@@ -12,13 +12,15 @@ import {ConnectedPositionStrategy} from './connected-position-strategy';
 import {GlobalPositionStrategy} from './global-position-strategy';
 import {OverlayConnectionPosition, OriginConnectionPosition} from './connected-position';
 import {DOCUMENT} from '@angular/common';
+import {OverlayContainer} from '../overlay-container';
 
 
 /** Builder for overlay position strategy. */
 @Injectable()
 export class OverlayPositionBuilder {
   constructor(private _viewportRuler: ViewportRuler,
-              @Inject(DOCUMENT) private _document: any) { }
+              @Inject(DOCUMENT) private _document: any,
+              private _overlayContainer: OverlayContainer) { }
 
   /**
    * Creates a global position strategy.
@@ -39,6 +41,6 @@ export class OverlayPositionBuilder {
       overlayPos: OverlayConnectionPosition): ConnectedPositionStrategy {
 
     return new ConnectedPositionStrategy(originPos, overlayPos, elementRef,
-        this._viewportRuler, this._document);
+        this._viewportRuler, this._document, this._overlayContainer);
   }
 }
