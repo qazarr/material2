@@ -38,6 +38,8 @@ let nextUniqueId = 0;
  */
 @Injectable()
 export class Overlay {
+  private static _visibleOverlays = 0;
+
   constructor(
               /** Scrolling strategies that can be used when creating an overlay. */
               public scrollStrategies: ScrollStrategyOptions,
@@ -49,7 +51,7 @@ export class Overlay {
               private _injector: Injector,
               private _ngZone: NgZone,
               @Inject(DOCUMENT) private _document: any,
-              private _directionality: Directionality) { }
+              private _directionality: Directionality) {}
 
   /**
    * Creates an overlay.
@@ -63,7 +65,7 @@ export class Overlay {
 
     overlayConfig.direction = overlayConfig.direction || this._directionality.value;
 
-    return new OverlayRef(
+    const overlayRef = new OverlayRef(
       portalOutlet,
       pane,
       overlayConfig,
@@ -71,6 +73,11 @@ export class Overlay {
       this._keyboardDispatcher,
       this._document
     );
+
+    overlayRef.attachments().subscribe(this._overlayAttached);
+    overlayRef.detachments().subscribe(this._overlayDetached);
+
+    return overlayRef;
   }
 
   /**
@@ -103,6 +110,19 @@ export class Overlay {
    */
   private _createPortalOutlet(pane: HTMLElement): DomPortalOutlet {
     return new DomPortalOutlet(pane, this._componentFactoryResolver, this._appRef, this._injector);
+  }
+
+  private _overlayAttached = () => {
+    Overlay._visibleOverlays++;
+    this._overlayContainer.getContainerElement().style.display = 'block';
+  }
+
+  private _overlayDetached = () => {
+    Overlay._visibleOverlays--;
+
+    if (!Overlay._visibleOverlays) {
+      this._overlayContainer.getContainerElement().style.display = '';
+    }
   }
 
 }
