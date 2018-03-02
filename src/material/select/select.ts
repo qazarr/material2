@@ -432,6 +432,7 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     if (newValue !== this._value) {
       this.writeValue(newValue);
       this._value = newValue;
+      this._onChange(newValue);
     }
   }
   private _value: any;
