@@ -14,8 +14,6 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ALL_ROUTES} from './demo-app/routes';
 import {EntryApp} from './demo-app/demo-app';
 import {DemoModule} from './demo-app/demo-module';
-import {AccessibilityDemoModule} from './a11y/a11y-module';
-
 
 @NgModule({
   imports: [
@@ -23,7 +21,6 @@ import {AccessibilityDemoModule} from './a11y/a11y-module';
     BrowserAnimationsModule,
     HttpClientModule,
     DemoModule,
-    AccessibilityDemoModule,
     RouterModule.forRoot(ALL_ROUTES),
   ],
   declarations: [
