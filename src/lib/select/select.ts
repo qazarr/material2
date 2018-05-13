@@ -19,6 +19,8 @@ import {
   RIGHT_ARROW,
   SPACE,
   UP_ARROW,
+  PAGE_UP,
+  PAGE_DOWN,
 } from '@angular/cdk/keycodes';
 import {
   CdkConnectedOverlay,
@@ -655,6 +657,8 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     if (keyCode === HOME || keyCode === END) {
       event.preventDefault();
       keyCode === HOME ? manager.setFirstItemActive() : manager.setLastItemActive();
+    } else if (keyCode === PAGE_DOWN) {
+      this._handlePageKeys(event);
     } else if (isArrowKey && event.altKey) {
       // Close the select on ALT + arrow key to match the native <select>
       event.preventDefault();
@@ -1249,5 +1253,27 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
    */
   get shouldLabelFloat(): boolean {
     return this._panelOpen || !this.empty;
+  }
+
+  private _handlePageKeys(event: KeyboardEvent) {
+    // TODO: does not work when option groups are involved
+    const manager = this._keyManager;
+    const itemHeight = this._getItemHeight();
+    const itemCount = this._getItemCount();
+    const startPosition = this.panel.nativeElement.scrollTop;
+    const panelHeight = Math.min(itemCount * itemHeight, SELECT_PANEL_MAX_HEIGHT);
+    const lastVisibleOffset = startPosition + panelHeight - itemHeight;
+    const options = this.options.toArray();
+    const groups = this.optionGroups.toArray();
+    const itemsPerPage = Math.round(panelHeight / itemHeight);
+    let index = Math.floor(lastVisibleOffset / itemHeight);
+
+    if (index === manager.activeItemIndex) {
+      index += itemsPerPage;
+    }
+
+    index = Math.min(index, this.options.length - 1);
+    manager.setActiveItem(index);
+    event.preventDefault();
   }
 }

@@ -37,6 +37,15 @@ export class SelectDemo {
   pokemonTheme = 'primary';
   compareByValue = true;
 
+  constructor() {
+    for (let i = 0; i < 50; i++) {
+      this.drinks.push({
+        value: `extra-drink-${i}`,
+        viewValue: `Extra drink ${i}`
+      });
+    }
+  }
+
   foods = [
     {value: null, viewValue: 'None'},
     {value: 'steak-0', viewValue: 'Steak'},
@@ -91,7 +100,7 @@ export class SelectDemo {
     },
     {
       name: 'Fire',
-      disabled: true,
+      disabled: false,
       pokemon: [
         {value: 'charmander-6', viewValue: 'Charmander'},
         {value: 'vulpix-7', viewValue: 'Vulpix'},
