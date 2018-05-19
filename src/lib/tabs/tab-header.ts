@@ -131,7 +131,7 @@ export class MatTabHeader extends _MatTabHeaderMixinBase
   constructor(private _elementRef: ElementRef,
               private _changeDetectorRef: ChangeDetectorRef,
               private _viewportRuler: ViewportRuler,
-              @Optional() private _dir: Directionality) {
+              @Optional() private _dir?: Directionality) {
     super();
   }
 

@@ -132,8 +132,8 @@ export class MatSortHeader extends _MatSortHeaderMixinBase
 
   constructor(public _intl: MatSortHeaderIntl,
               changeDetectorRef: ChangeDetectorRef,
-              @Optional() public _sort: MatSort,
-              @Optional() public _cdkColumnDef: CdkColumnDef) {
+              @Optional() public _sort: MatSort | null,
+              @Optional() public _cdkColumnDef: CdkColumnDef | null) {
 
     super();
 
@@ -167,11 +167,16 @@ export class MatSortHeader extends _MatSortHeaderMixinBase
     this._setAnimationTransitionState(
         {toState: this._isSorted() ? 'active' : this._arrowDirection});
 
-    this._sort.register(this);
+    if (this._sort) {
+      this._sort.register(this);
+    }
   }
 
   ngOnDestroy() {
-    this._sort.deregister(this);
+    if (this._sort) {
+      this._sort.deregister(this);
+    }
+
     this._rerenderSubscription.unsubscribe();
   }
 
@@ -214,7 +219,9 @@ export class MatSortHeader extends _MatSortHeaderMixinBase
   _handleClick() {
     if (this._isDisabled()) { return; }
 
-    this._sort.sort(this);
+    if (this._sort) {
+      this._sort.sort(this);
+    }
 
     // Do not show the animation if the header was already shown in the right position.
     if (this._viewState.toState === 'hint' || this._viewState.toState === 'active') {
@@ -233,7 +240,7 @@ export class MatSortHeader extends _MatSortHeaderMixinBase
 
   /** Whether this MatSortHeader is currently sorted in either ascending or descending order. */
   _isSorted() {
-    return this._sort.active == this.id &&
+    return this._sort && this._sort.active == this.id &&
         (this._sort.direction === 'asc' || this._sort.direction === 'desc');
   }
 
@@ -259,13 +266,15 @@ export class MatSortHeader extends _MatSortHeaderMixinBase
    * only be changed once the arrow displays again (hint or activation).
    */
   _updateArrowDirection() {
-    this._arrowDirection = this._isSorted() ?
-        this._sort.direction :
-        (this.start || this._sort.start);
+    if (this._sort) {
+      this._arrowDirection = this._isSorted() ?
+          this._sort.direction :
+          (this.start || this._sort.start);
+    }
   }
 
   _isDisabled() {
-    return this._sort.disabled || this.disabled;
+    return (this._sort && this._sort.disabled) || this.disabled;
   }
 
   /**
@@ -275,7 +284,7 @@ export class MatSortHeader extends _MatSortHeaderMixinBase
    * ensures this is true.
    */
   _getAriaSortAttribute() {
-    if (!this._isSorted()) { return null; }
+    if (!this._sort || !this._isSorted()) { return null; }
 
     return this._sort.direction == 'asc' ? 'ascending' : 'descending';
   }

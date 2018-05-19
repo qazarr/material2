@@ -48,7 +48,7 @@ export class MomentDateAdapter extends DateAdapter<Moment> {
     narrowDaysOfWeek: string[]
   };
 
-  constructor(@Optional() @Inject(MAT_DATE_LOCALE) dateLocale: string) {
+  constructor(@Optional() @Inject(MAT_DATE_LOCALE) dateLocale?: string) {
     super();
     this.setLocale(dateLocale || moment.locale());
   }

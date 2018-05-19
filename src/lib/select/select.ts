@@ -151,9 +151,9 @@ export class MatSelectChange {
 export class MatSelectBase {
   constructor(public _elementRef: ElementRef,
               public _defaultErrorStateMatcher: ErrorStateMatcher,
-              public _parentForm: NgForm,
-              public _parentFormGroup: FormGroupDirective,
-              public ngControl: NgControl) {}
+              public _parentForm: NgForm | null,
+              public _parentFormGroup: FormGroupDirective | null,
+              public ngControl: NgControl | null) {}
 }
 export const _MatSelectMixinBase = mixinDisableRipple(
     mixinTabIndex(mixinDisabled(mixinErrorState(MatSelectBase))));
@@ -445,11 +445,11 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     private _ngZone: NgZone,
     _defaultErrorStateMatcher: ErrorStateMatcher,
     elementRef: ElementRef,
-    @Optional() private _dir: Directionality,
-    @Optional() _parentForm: NgForm,
-    @Optional() _parentFormGroup: FormGroupDirective,
-    @Optional() private _parentFormField: MatFormField,
-    @Self() @Optional() public ngControl: NgControl,
+    @Optional() private _dir: Directionality | null,
+    @Optional() _parentForm: NgForm | null,
+    @Optional() _parentFormGroup: FormGroupDirective | null,
+    @Optional() private _parentFormField: MatFormField | null,
+    @Self() @Optional() public ngControl: NgControl | null,
     @Attribute('tabindex') tabIndex: string,
     @Inject(MAT_SELECT_SCROLL_STRATEGY) private _scrollStrategyFactory) {
     super(elementRef, _defaultErrorStateMatcher, _parentForm,

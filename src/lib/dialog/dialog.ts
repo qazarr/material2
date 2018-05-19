@@ -98,10 +98,10 @@ export class MatDialog {
   constructor(
       private _overlay: Overlay,
       private _injector: Injector,
-      @Optional() private _location: Location,
+      @Optional() private _location: Location | undefined,
       @Optional() @Inject(MAT_DIALOG_DEFAULT_OPTIONS) private _defaultOptions,
       @Inject(MAT_DIALOG_SCROLL_STRATEGY) private _scrollStrategy,
-      @Optional() @SkipSelf() private _parentDialog: MatDialog,
+      @Optional() @SkipSelf() private _parentDialog: MatDialog | null,
       private _overlayContainer: OverlayContainer) {}
 
   /**

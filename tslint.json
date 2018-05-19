@@ -87,16 +87,17 @@
     "no-duplicate-imports": true,
 
     // Codelyzer
-    "banana-in-box": true,
-    "contextual-life-cycle": true,
-    "decorator-not-allowed": true,
-    "no-output-on-prefix": true,
-    "templates-no-negated-async": true,
-    "use-life-cycle-interface": true,
+    // "banana-in-box": true,
+    // "contextual-life-cycle": true,
+    // "decorator-not-allowed": true,
+    // "no-output-on-prefix": true,
+    // "templates-no-negated-async": true,
+    // "use-life-cycle-interface": true,
 
     // Custom Rules
     "ts-loader": true,
     "no-exposed-todo": true,
+    "nullable-optional": true,
     "no-host-decorator-in-concrete": [
       true,
       "HostBinding",

@@ -160,7 +160,7 @@ export class MatTabBody implements OnInit {
   _origin: MatTabBodyOriginState;
 
   constructor(private _elementRef: ElementRef,
-              @Optional() private _dir: Directionality) { }
+              @Optional() private _dir?: Directionality) { }
 
   /**
    * After initialized, check if the content is centered and has an origin. If so, set the

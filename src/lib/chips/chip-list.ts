@@ -42,10 +42,10 @@ import {MatChipInput} from './chip-input';
 /** @docs-private */
 export class MatChipListBase {
   constructor(public _defaultErrorStateMatcher: ErrorStateMatcher,
-              public _parentForm: NgForm,
-              public _parentFormGroup: FormGroupDirective,
+              public _parentForm: NgForm | null,
+              public _parentFormGroup: FormGroupDirective | null,
               /** @docs-private */
-              public ngControl: NgControl) {}
+              public ngControl: NgControl | null) {}
 }
 export const _MatChipListMixinBase = mixinErrorState(MatChipListBase);
 
@@ -324,12 +324,12 @@ export class MatChipList extends _MatChipListMixinBase implements MatFormFieldCo
 
   constructor(protected _elementRef: ElementRef,
               private _changeDetectorRef: ChangeDetectorRef,
-              @Optional() private _dir: Directionality,
-              @Optional() _parentForm: NgForm,
-              @Optional() _parentFormGroup: FormGroupDirective,
+              @Optional() private _dir: Directionality | null,
+              @Optional() _parentForm: NgForm | null,
+              @Optional() _parentFormGroup: FormGroupDirective | null,
               _defaultErrorStateMatcher: ErrorStateMatcher,
               /** @docs-private */
-              @Optional() @Self() public ngControl: NgControl) {
+              @Optional() @Self() public ngControl: NgControl | null) {
     super(_defaultErrorStateMatcher, _parentForm, _parentFormGroup, ngControl);
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;

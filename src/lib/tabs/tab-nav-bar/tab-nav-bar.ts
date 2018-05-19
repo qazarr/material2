@@ -102,7 +102,7 @@ export class MatTabNav extends _MatTabNavMixinBase
   private _backgroundColor: ThemePalette;
 
   constructor(elementRef: ElementRef,
-              @Optional() private _dir: Directionality,
+              @Optional() private _dir: Directionality | null,
               private _ngZone: NgZone,
               private _changeDetectorRef: ChangeDetectorRef,
               private _viewportRuler: ViewportRuler) {
@@ -216,7 +216,8 @@ export class MatTabLink extends _MatTabLinkMixinBase
               public _elementRef: ElementRef,
               ngZone: NgZone,
               platform: Platform,
-              @Optional() @Inject(MAT_RIPPLE_GLOBAL_OPTIONS) globalOptions: RippleGlobalOptions,
+              @Optional() @Inject(MAT_RIPPLE_GLOBAL_OPTIONS)
+                  globalOptions: RippleGlobalOptions | null,
               @Attribute('tabindex') tabIndex: string) {
     super();
 

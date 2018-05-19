@@ -147,7 +147,7 @@ export class MatHorizontalStepper extends MatStepper { }
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MatVerticalStepper extends MatStepper {
-  constructor(@Optional() dir: Directionality, changeDetectorRef: ChangeDetectorRef) {
+  constructor(@Optional() dir: Directionality | null, changeDetectorRef: ChangeDetectorRef) {
     super(dir, changeDetectorRef);
     this._orientation = 'vertical';
   }

@@ -208,7 +208,7 @@ export class CdkStepper implements AfterViewInit, OnDestroy {
   protected _orientation: StepperOrientation = 'horizontal';
 
   constructor(
-    @Optional() private _dir: Directionality,
+    @Optional() private _dir: Directionality | null,
     private _changeDetectorRef: ChangeDetectorRef) {
     this._groupId = nextId++;
   }

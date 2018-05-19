@@ -132,9 +132,9 @@ export class MatMenuTrigger implements AfterContentInit, OnDestroy {
               private _element: ElementRef,
               private _viewContainerRef: ViewContainerRef,
               @Inject(MAT_MENU_SCROLL_STRATEGY) private _scrollStrategy,
-              @Optional() private _parentMenu: MatMenu,
-              @Optional() @Self() private _menuItemInstance: MatMenuItem,
-              @Optional() private _dir: Directionality,
+              @Optional() private _parentMenu: MatMenu | undefined,
+              @Optional() @Self() private _menuItemInstance: MatMenuItem | null,
+              @Optional() private _dir: Directionality | null,
               // TODO(crisbeto): make the _focusMonitor required when doing breaking changes.
               // @deletion-target 7.0.0
               private _focusMonitor?: FocusMonitor) {
@@ -307,7 +307,7 @@ export class MatMenuTrigger implements AfterContentInit, OnDestroy {
     this._menuOpen ? this.menuOpened.emit() : this.menuClosed.emit();
 
     if (this.triggersSubmenu()) {
-      this._menuItemInstance._highlighted = isOpen;
+      this._menuItemInstance!._highlighted = isOpen;
     }
   }
 
@@ -477,7 +477,7 @@ export class MatMenuTrigger implements AfterContentInit, OnDestroy {
       return;
     }
 
-    this._hoverSubscription = this._parentMenu._hovered()
+    this._hoverSubscription = this._parentMenu!._hovered()
       // Since we might have multiple competing triggers for the same menu (e.g. a sub-menu
       // with different data and triggers), we have to delay it by a tick to ensure that
       // it won't be closed immediately after it is opened.
@@ -493,7 +493,7 @@ export class MatMenuTrigger implements AfterContentInit, OnDestroy {
         // before doing so. Also interrupt if the user moves to another item.
         if (this.menu instanceof MatMenu && this.menu._isAnimating) {
           this.menu._animationDone
-            .pipe(take(1), takeUntil(this._parentMenu._hovered()))
+            .pipe(take(1), takeUntil(this._parentMenu!._hovered()))
             .subscribe(() => this.openMenu());
         } else {
           this.openMenu();

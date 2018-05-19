@@ -21,10 +21,10 @@ export interface CanUpdateErrorState {
 
 /** @docs-private */
 export interface HasErrorState {
-  _parentFormGroup: FormGroupDirective;
-  _parentForm: NgForm;
+  _parentFormGroup: FormGroupDirective | null;
+  _parentForm: NgForm | null;
   _defaultErrorStateMatcher: ErrorStateMatcher;
-  ngControl: NgControl;
+  ngControl: NgControl | null;
 }
 
 /**
