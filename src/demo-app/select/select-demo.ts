@@ -9,6 +9,8 @@
 import {Component} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {MatSelectChange} from '@angular/material';
+import * as Showdown from 'showdown';
+import { Step, RECOMMENDATIONS } from './recommendations';
 
 
 @Component({
@@ -18,121 +20,178 @@ import {MatSelectChange} from '@angular/material';
     styleUrls: ['select-demo.css'],
 })
 export class SelectDemo {
-  drinksRequired = false;
-  drinkObjectRequired = false;
-  pokemonRequired = false;
-  drinksDisabled = false;
-  pokemonDisabled = false;
-  showSelect = false;
-  currentDrink: string;
-  currentDrinkObject: {}|undefined = {value: 'tea-5', viewValue: 'Tea'};
-  currentPokemon: string[];
-  currentPokemonFromGroup: string;
-  currentDigimon: string;
-  latestChangeEvent: MatSelectChange;
-  floatLabel = 'auto';
-  foodControl = new FormControl('pizza-1');
-  topHeightCtrl = new FormControl(0);
-  drinksTheme = 'primary';
-  pokemonTheme = 'primary';
-  compareByValue = true;
+  title = 'Angular Update Guide';
 
-  foods = [
-    {value: null, viewValue: 'None'},
-    {value: 'steak-0', viewValue: 'Steak'},
-    {value: 'pizza-1', viewValue: 'Pizza'},
-    {value: 'tacos-2', viewValue: 'Tacos'}
+  level = 1;
+  options = {
+    ngUpgrade: false,
+  };
+  optionList = [{ id: 'ngUpgrade', name: 'ngUpgrade' }];
+  packageManager: 'npm install' | 'yarn add' = 'npm install';
+
+  beforeRecommendations: Step[] = [];
+  duringRecommendations: Step[] = [];
+  afterRecommendations: Step[] = [];
+
+  converter: Showdown.Converter;
+
+  versions = [
+    { name: '2.0', number: 200 },
+    { name: '2.1', number: 201 },
+    { name: '2.2', number: 202 },
+    { name: '2.3', number: 203 },
+    { name: '2.4', number: 204 },
+    { name: '4.0', number: 400 },
+    { name: '4.1', number: 410 },
+    { name: '4.2', number: 420 },
+    { name: '4.3', number: 430 },
+    { name: '4.4', number: 440 },
+    { name: '5.0', number: 500 },
+    { name: '5.1', number: 510 },
+    { name: '5.2', number: 520 },
+    { name: '6.0', number: 600 },
+    { name: '7.0', number: 700 },
+    { name: '8.0', number: 800 },
   ];
+  from = this.versions[12];
+  to = this.versions[13];
 
-  drinks = [
-    {value: 'coke-0', viewValue: 'Coke'},
-    {value: 'long-name-1', viewValue: 'Decaf Chocolate Brownie Vanilla Gingerbread Frappuccino'},
-    {value: 'water-2', viewValue: 'Water'},
-    {value: 'pepper-3', viewValue: 'Dr. Pepper'},
-    {value: 'coffee-4', viewValue: 'Coffee'},
-    {value: 'tea-5', viewValue: 'Tea'},
-    {value: 'juice-6', viewValue: 'Orange juice'},
-    {value: 'wine-7', viewValue: 'Wine'},
-    {value: 'milk-8', viewValue: 'Milk'},
-  ];
+  steps: Step[] = RECOMMENDATIONS;
 
-  pokemon = [
-    {value: 'bulbasaur-0', viewValue: 'Bulbasaur'},
-    {value: 'charizard-1', viewValue: 'Charizard'},
-    {value: 'squirtle-2', viewValue: 'Squirtle'},
-    {value: 'pikachu-3', viewValue: 'Pikachu'},
-    {value: 'jigglypuff-4', viewValue: 'Jigglypuff with a really long name that will truncate'},
-    {value: 'ditto-5', viewValue: 'Ditto'},
-    {value: 'psyduck-6', viewValue: 'Psyduck'},
-  ];
+  constructor() {
+    this.converter = new Showdown.Converter();
+  }
 
-  availableThemes = [
-    {value: 'primary', name: 'Primary' },
-    {value: 'accent', name: 'Accent' },
-    {value: 'warn', name: 'Warn' }
-  ];
+  showUpdatePath() {
+    this.beforeRecommendations = [];
+    this.duringRecommendations = [];
+    this.afterRecommendations = [];
 
-  pokemonGroups = [
-    {
-      name: 'Grass',
-      pokemon: [
-        {value: 'bulbasaur-0', viewValue: 'Bulbasaur'},
-        {value: 'oddish-1', viewValue: 'Oddish'},
-        {value: 'bellsprout-2', viewValue: 'Bellsprout'}
-      ]
-    },
-    {
-      name: 'Water',
-      pokemon: [
-        {value: 'squirtle-3', viewValue: 'Squirtle'},
-        {value: 'psyduck-4', viewValue: 'Psyduck'},
-        {value: 'horsea-5', viewValue: 'Horsea'}
-      ]
-    },
-    {
-      name: 'Fire',
-      disabled: true,
-      pokemon: [
-        {value: 'charmander-6', viewValue: 'Charmander'},
-        {value: 'vulpix-7', viewValue: 'Vulpix'},
-        {value: 'flareon-8', viewValue: 'Flareon'}
-      ]
-    },
-    {
-      name: 'Psychic',
-      pokemon: [
-        {value: 'mew-9', viewValue: 'Mew'},
-        {value: 'mewtwo-10', viewValue: 'Mewtwo'},
-      ]
+    this.title = `Angular Update Guide | ${this.from.name} -> ${this.to.name} for ${
+      this.level < 2 ? 'Basic' : this.level < 3 ? 'Medium' : 'Advanced'
+    } Apps`;
+
+    // Find applicable steps and organize them into before, during, and after upgrade
+    for (const step of this.steps) {
+      if (step.level <= this.level && step.necessaryAsOf > this.from.number) {
+        // Check Options
+        // Only show steps that don't have a required option
+        // Or when the user has a matching option selected
+        let skip = false;
+        for (let option of this.optionList) {
+          if ((step as any)[option.id] && !(this.options as any)[option.id]) {
+            skip = true;
+          }
+        }
+        if (skip) {
+          continue;
+        }
+
+        // Render and replace variables
+        step.renderedStep = this.converter.makeHtml(this.replaceVariables(step.action));
+
+        // If you could do it before now, but didn't have to finish it before now
+        if (step.possibleIn <= this.from.number && step.necessaryAsOf >= this.from.number) {
+          this.beforeRecommendations.push(step);
+          // If you couldn't do it before now, and you must do it now
+        } else if (step.possibleIn > this.from.number && step.necessaryAsOf <= this.to.number) {
+          this.duringRecommendations.push(step);
+        } else if (step.possibleIn <= this.to.number) {
+          this.afterRecommendations.push(step);
+        } else {
+        }
+      }
     }
-  ];
 
-  digimon = [
-    {value: 'mihiramon-0', viewValue: 'Mihiramon'},
-    {value: 'sandiramon-1', viewValue: 'Sandiramon'},
-    {value: 'sinduramon-2', viewValue: 'Sinduramon'},
-    {value: 'pajiramon-3', viewValue: 'Pajiramon'},
-    {value: 'vajiramon-4', viewValue: 'Vajiramon'},
-    {value: 'indramon-5', viewValue: 'Indramon'}
-  ];
-
-  toggleDisabled() {
-    this.foodControl.enabled ? this.foodControl.disable() : this.foodControl.enable();
+    // Tell everyone how to upgrade for v6 or earlier
+    this.renderPreV6Instructions();
   }
 
-  setPokemonValue() {
-    this.currentPokemon = ['jigglypuff-4', 'psyduck-6'];
+  getAdditionalDependencies(version: number) {
+    if (version < 500) {
+      return `typescript@'>=2.1.0 <2.4.0'`;
+    } else if (version < 600) {
+      return `typescript@2.4.2 rxjs@^5.5.2`;
+    } else {
+      return `typescript@2.7.x rxjs@^6.0.0`;
+    }
+  }
+  getAngularVersion(version: number) {
+    if (version < 400) {
+      return `'^2.0.0'`;
+    } else {
+      const major = Math.floor(version / 100);
+      const minor = Math.floor((version - major * 100) / 10);
+      return `^${major}.${minor}.0`;
+    }
   }
 
-  reassignDrinkByCopy() {
-    this.currentDrinkObject = {...this.currentDrinkObject};
+  renderPreV6Instructions() {
+    let upgradeStep: any;
+    const isWindows = /win/i.test(navigator.platform);
+    const additionalDeps = this.getAdditionalDependencies(this.to.number);
+    const angularVersion = this.getAngularVersion(this.to.number);
+    const angularPackages = [
+      'animations',
+      'common',
+      'compiler',
+      'compiler-cli',
+      'core',
+      'forms',
+      'http',
+      'platform-browser',
+      'platform-browser-dynamic',
+      'platform-server',
+      'router',
+    ];
+
+    // Provide npm/yarn instructions for versions before 6
+    if (this.to.number < 600) {
+      let actionMessage =
+      `Update all of your dependencies to the latest Angular and the right version of TypeScript.`;
+
+      if (isWindows) {
+        const packages =
+          angularPackages.map(packageName => `@angular/${packageName}@${angularVersion}`)
+          .join(' ') +
+          ' ' +
+          additionalDeps;
+
+        upgradeStep = {
+          step: 'General Update',
+          action: `${actionMessage}
+          If you are using Windows, you can use:
+\`${this.packageManager} ${packages}\``,
+        };
+      } else {
+        const packages =
+          `@angular/{${angularPackages.join(',')}}@${angularVersion} ${additionalDeps}`;
+        upgradeStep = {
+          step: 'General update',
+          action: `${actionMessage}
+          If you are using Linux/Mac, you can use:
+\`${this.packageManager} ${packages}\``,
+        };
+      }
+
+      // Npm installs typescript wrong in v5, let's manually specify
+      // https://github.com/npm/npm/issues/16813
+      if (this.packageManager === 'npm install' && this.to.number === 500) {
+        upgradeStep.action += `
+\`npm install typescript@2.4.2 --save-exact\``;
+      }
+
+      upgradeStep.renderedStep = this.converter.makeHtml(upgradeStep.action);
+
+      this.duringRecommendations.push(upgradeStep);
+    }
   }
 
-  compareDrinkObjectsByValue(d1: {value: string}, d2: {value: string}) {
-    return d1 && d2 && d1.value === d2.value;
-  }
-
-  compareByReference(o1: any, o2: any) {
-    return o1 === o2;
+  replaceVariables(action: string) {
+    let newAction = action;
+    newAction = newAction.replace('${packageManagerGlobalInstall}',
+      this.packageManager === 'npm install' ? 'npm install -g' : 'yarn global add' );
+    newAction = newAction.replace('${packageManagerInstall}', this.packageManager);
+    return newAction;
   }
 }

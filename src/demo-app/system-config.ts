@@ -16,6 +16,7 @@ System.config({
   },
   map: {
     'rxjs': 'node:rxjs',
+    'showdown': 'node:showdown/dist/showdown.js',
     'main': 'main.js',
     'tslib': 'node:tslib/tslib.js',
     'moment': 'node:moment/min/moment-with-locales.min.js',
