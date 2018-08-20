@@ -1,7 +1,33 @@
-<material-example-list [ids]="examples"></material-example-list>
+<h3>
+  On load the 'Fat' column should have Sort-Arrow next to it!
+</h3>
+<table matSort
+      (matSortChange)="sortData($event)"
+      [matSortActive]="sortActive"
+      [matSortDirection]="sortDirection">
+  <tr>
+    <th mat-sort-header="name">Dessert (100g)</th>
+    <th mat-sort-header="calories">Calories</th>
+    <th mat-sort-header="fat">Fat (g)</th>
+    <th mat-sort-header="carbs">Carbs (g)</th>
+    <th mat-sort-header="protein">Protein (g)</th>
+  </tr>
 
-<custom-table-demo></custom-table-demo>
+  <tr *ngFor="let dessert of sortedData">
+    <td>{{dessert.name}}</td>
+    <td>{{dessert.calories}}</td>
+    <td>{{dessert.fat}}</td>
+    <td>{{dessert.carbs}}</td>
+    <td>{{dessert.protein}}</td>
+  </tr>
+</table>
 
-<data-input-table-demo></data-input-table-demo>
+<br>
 
-<when-rows-demo></when-rows-demo>
+<button (click)="sort('fat')">Sort Fat</button>
+This button will work only if you didn't clicked the button bellow
+
+<br><br><br>
+
+<button (click)="sort('carbs')">Sort Carbs</button>
+Clicking on this button will break the Sort-Arrow!!!

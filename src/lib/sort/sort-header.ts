@@ -147,8 +147,10 @@ export class MatSortHeader extends _MatSortHeaderMixinBase
             this._updateArrowDirection();
           }
 
-          // If this header was recently active and now no longer sorted, animate away the arrow.
-          if (!this._isSorted() && this._viewState && this._viewState.toState === 'active') {
+          if (this._isSorted()) {
+            this._updateViewState();
+          } else if (this._viewState && this._viewState.toState === 'active') {
+            // If this header was recently active and now no longer sorted, animate away the arrow.
             this._disableViewStateAnimation = false;
             this._setAnimationTransitionState({fromState: 'active', toState: this._arrowDirection});
           }
@@ -212,23 +214,10 @@ export class MatSortHeader extends _MatSortHeaderMixinBase
 
   /** Triggers the sort on this sort header and removes the indicator hint. */
   _handleClick() {
-    if (this._isDisabled()) { return; }
-
-    this._sort.sort(this);
-
-    // Do not show the animation if the header was already shown in the right position.
-    if (this._viewState.toState === 'hint' || this._viewState.toState === 'active') {
-      this._disableViewStateAnimation = true;
+    if (!this._isDisabled()) {
+      this._sort.sort(this);
+      this._updateViewState();
     }
-
-    // If the arrow is now sorted, animate the arrow into place. Otherwise, animate it away into
-    // the direction it is facing.
-    const viewState: ArrowViewStateTransition = this._isSorted() ?
-        {fromState: this._arrowDirection, toState: 'active'} :
-        {fromState: 'active', toState: this._arrowDirection};
-    this._setAnimationTransitionState(viewState);
-
-    this._showIndicatorHint = false;
   }
 
   /** Whether this MatSortHeader is currently sorted in either ascending or descending order. */
@@ -278,5 +267,23 @@ export class MatSortHeader extends _MatSortHeaderMixinBase
     if (!this._isSorted()) { return null; }
 
     return this._sort.direction == 'asc' ? 'ascending' : 'descending';
+  }
+
+  /**
+   * Updates the view state of the header, based on its current state and whether it's sorted.
+   */
+  private _updateViewState() {
+    // Do not show the animation if the header was already shown in the right position.
+    if (this._viewState.toState === 'hint' || this._viewState.toState === 'active') {
+      this._disableViewStateAnimation = true;
+    }
+
+    // If the arrow is now sorted, animate the arrow into place. Otherwise, animate it away into
+    // the direction it is facing.
+    const viewState: ArrowViewStateTransition = this._isSorted() ?
+        {fromState: this._arrowDirection, toState: 'active'} :
+        {fromState: 'active', toState: this._arrowDirection};
+    this._setAnimationTransitionState(viewState);
+    this._showIndicatorHint = false;
   }
 }
