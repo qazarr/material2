@@ -107,11 +107,26 @@ export const SELECT_PANEL_MAX_HEIGHT = 256;
 /** The panel's padding on the x-axis */
 export const SELECT_PANEL_PADDING_X = 16;
 
+/** The panel's padding on the y-axis. */
+export const SELECT_PANEL_PADDING_Y = 8;
+
 /** The panel's x axis padding if it is indented (e.g. there is an option group). */
 export const SELECT_PANEL_INDENT_PADDING_X = SELECT_PANEL_PADDING_X * 2;
 
 /** The height of the select items in `em` units. */
 export const SELECT_ITEM_HEIGHT_EM = 3;
+
+/**
+ * Used to scale down the font size of the panel to match the spec,
+ * while maintaining its relationship to the trigger font size.
+ */
+export const SELECT_PANEL_FONT_SIZE_SCALE = 0.875;
+
+/**
+ * Minimum font size for the select panel. Used to avoid
+ * tiny text that could come as a result of the scaling.
+ */
+export const SELECT_PANEL_MIN_FONT_SIZE = 14;
 
 /**
  * Distance between the panel edge and the option text in
@@ -565,7 +580,12 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     this._triggerRect = this.trigger.nativeElement.getBoundingClientRect();
     // Note: The computed font-size will be a string pixel value (e.g. "16px").
     // `parseInt` ignores the trailing 'px' and converts this to a number.
-    this._triggerFontSize = parseInt(getComputedStyle(this.trigger.nativeElement)['font-size']);
+    const computedFontSize = getComputedStyle(this.trigger.nativeElement)['font-size'];
+
+    this._triggerFontSize = Math.max(
+      parseInt(computedFontSize) * SELECT_PANEL_FONT_SIZE_SCALE,
+      SELECT_PANEL_MIN_FONT_SIZE
+    );
 
     this._panelOpen = true;
     this._keyManager.withHorizontalOrientation(null);
@@ -575,8 +595,7 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
 
     // Set the font size on the panel element once it exists.
     this._ngZone.onStable.asObservable().pipe(take(1)).subscribe(() => {
-      if (this._triggerFontSize && this.overlayDir.overlayRef &&
-          this.overlayDir.overlayRef.overlayElement) {
+      if (this._triggerFontSize && this.overlayDir && this.overlayDir.overlayRef) {
         this.overlayDir.overlayRef.overlayElement.style.fontSize = `${this._triggerFontSize}px`;
       }
     });
@@ -981,7 +1000,7 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
       activeOptionIndex + labelCount,
       this._getItemHeight(),
       this.panel.nativeElement.scrollTop,
-      SELECT_PANEL_MAX_HEIGHT
+      SELECT_PANEL_MAX_HEIGHT - SELECT_PANEL_PADDING_Y * 2
     );
   }
 
@@ -1165,7 +1184,8 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     // The final offset is the option's offset from the top, adjusted for the height difference,
     // multiplied by -1 to ensure that the overlay moves in the correct direction up the page.
     // The value is rounded to prevent some browsers from blurring the content.
-    return Math.round(optionOffsetFromPanelTop * -1 - optionHeightAdjustment);
+    return Math.round(optionOffsetFromPanelTop * -1 - optionHeightAdjustment)
+        - SELECT_PANEL_PADDING_Y;
   }
 
   /**
