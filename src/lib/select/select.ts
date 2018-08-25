@@ -113,6 +113,11 @@ export const SELECT_PANEL_INDENT_PADDING_X = SELECT_PANEL_PADDING_X * 2;
 /** The height of the select items in `em` units. */
 export const SELECT_ITEM_HEIGHT_EM = 3;
 
+
+export const SELECT_FONT_SIZE_SCALE = 0.875;
+
+export const SELECT_MIN_FONT_SIZE = 14;
+
 /**
  * Distance between the panel edge and the option text in
  * multi-selection mode.
@@ -565,7 +570,8 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     this._triggerRect = this.trigger.nativeElement.getBoundingClientRect();
     // Note: The computed font-size will be a string pixel value (e.g. "16px").
     // `parseInt` ignores the trailing 'px' and converts this to a number.
-    this._triggerFontSize = parseInt(getComputedStyle(this.trigger.nativeElement)['font-size']);
+    const parsedFontSize = parseInt(getComputedStyle(this.trigger.nativeElement)['font-size']);
+    this._triggerFontSize = Math.max(parsedFontSize * SELECT_FONT_SIZE_SCALE, SELECT_MIN_FONT_SIZE);
 
     this._panelOpen = true;
     this._keyManager.withHorizontalOrientation(null);
@@ -575,8 +581,7 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
 
     // Set the font size on the panel element once it exists.
     this._ngZone.onStable.asObservable().pipe(take(1)).subscribe(() => {
-      if (this._triggerFontSize && this.overlayDir.overlayRef &&
-          this.overlayDir.overlayRef.overlayElement) {
+      if (this._triggerFontSize && this.overlayDir.overlayRef) {
         this.overlayDir.overlayRef.overlayElement.style.fontSize = `${this._triggerFontSize}px`;
       }
     });

@@ -62,7 +62,12 @@ import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {Subject, Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {MatSelectModule} from './index';
-import {MatSelect} from './select';
+import {
+  MatSelect,
+  SELECT_ITEM_HEIGHT_EM,
+  SELECT_FONT_SIZE_SCALE,
+  SELECT_MIN_FONT_SIZE,
+} from './select';
 import {
   getMatSelectDynamicMultipleError,
   getMatSelectNonArrayValueError,
@@ -73,7 +78,7 @@ import {
 /** The debounce interval when typing letters to select an option. */
 const LETTER_KEY_DEBOUNCE_INTERVAL = 200;
 
-describe('MatSelect', () => {
+fdescribe('MatSelect', () => {
   let overlayContainer: OverlayContainer;
   let overlayContainerElement: HTMLElement;
   let dir: {value: 'ltr'|'rtl'};
@@ -2909,12 +2914,14 @@ describe('MatSelect', () => {
       const options = overlayPane.querySelectorAll('mat-option');
       const optionTop = options[index].getBoundingClientRect().top;
       const triggerFontSize = parseInt(window.getComputedStyle(trigger)['font-size']);
+      const optionFontSize =
+          Math.max(triggerFontSize * SELECT_FONT_SIZE_SCALE, SELECT_MIN_FONT_SIZE);
       const triggerLineHeightEm = 1.125;
 
       // Extra trigger height beyond the font size caused by the fact that the line-height is
       // greater than 1em.
       const triggerExtraLineSpaceAbove = (1 - triggerLineHeightEm) * triggerFontSize / 2;
-      const topDifference = Math.floor(optionTop) -
+      const topDifference = Math.floor(optionTop - optionFontSize * 2) -
           Math.floor(triggerTop - triggerFontSize - triggerExtraLineSpaceAbove);
 
       // Expect the coordinates to be within a pixel of each other. We can't rely on comparing
@@ -2925,7 +2932,7 @@ describe('MatSelect', () => {
 
       // For the animation to start at the option's center, its origin must be the distance
       // from the top of the overlay to the option top + half the option height (48/2 = 24).
-      const expectedOrigin = Math.floor(optionTop - overlayTop + 24);
+      const expectedOrigin = Math.floor(optionTop - optionFontSize * 2 - overlayTop + 24);
       const rawYOrigin = selectInstance._transformOrigin.split(' ')[1].trim();
       const origin = Math.floor(parseInt(rawYOrigin));
 
@@ -3239,7 +3246,7 @@ describe('MatSelect', () => {
             const scrollContainer = overlayPane.querySelector('.mat-select-panel')!;
 
             // Expect scroll to remain at the max scroll position
-            expect(scrollContainer.scrollTop).toEqual(128, `Expected panel to be at max scroll.`);
+            expect(scrollContainer.scrollTop).toEqual(80, `Expected panel to be at max scroll.`);
 
             expect(Math.floor(overlayTop))
                 .toEqual(Math.floor(triggerTop), `Expected trigger top to align with overlay top.`);
@@ -3668,6 +3675,7 @@ describe('MatSelect', () => {
         formField.style.top = '100px';
 
         const menuItemHeight = 48;
+        const menuItemFontSize = 14;
         const triggerFontSize = 16;
         const triggerLineHeightEm = 1.125;
         const triggerHeight = triggerFontSize * triggerLineHeightEm;
@@ -3680,16 +3688,17 @@ describe('MatSelect', () => {
 
         const option = overlayContainerElement.querySelector('.cdk-overlay-pane mat-option');
         const optionTop = option ? option.getBoundingClientRect().top : 0;
+        const optionOffset = ((menuItemHeight - triggerHeight) / 2) -
+                             (menuItemFontSize * SELECT_ITEM_HEIGHT_EM / 2);
 
         // There appears to be a small rounding error on IE, so we verify that the value is close,
         // not exact.
         if (platform.TRIDENT) {
-          let difference =
-              Math.abs(optionTop + (menuItemHeight - triggerHeight) / 2 - triggerTop);
+          const difference = Math.abs(optionTop - optionOffset - triggerTop);
           expect(difference)
               .toBeLessThan(0.1, 'Expected trigger to align with the first option.');
         } else {
-          expect(Math.floor(optionTop + (menuItemHeight - triggerHeight) / 2))
+          expect(Math.floor(optionTop - optionOffset))
               .toBe(Math.floor(triggerTop), 'Expected trigger to align with the first option.');
         }
       }));
