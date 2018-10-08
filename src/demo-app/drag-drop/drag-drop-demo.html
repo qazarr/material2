@@ -1,71 +1,21 @@
-<div>
-  <div class="list">
-    <h2>To do</h2>
-    <cdk-drop
-      #one
-      (dropped)="drop($event)"
-      [lockAxis]="axisLock"
-      [data]="todo"
-      [connectedTo]="[two]">
-      <div *ngFor="let item of todo" cdkDrag>
-        {{item}}
-        <mat-icon cdkDragHandle svgIcon="dnd-move"></mat-icon>
+<div class="basic-container">
+  <ul>
+    <li>Notice the original spacing between boxes. I'd expect this spacing to be preserved when items are gragged.</li>
+    <li>drag boxes and see that not only boxes get right next to each other, sometimes they overlap</li>
+    <li>Uncomment the cdkDragPlaceholder line and see the same issue</li>
+  </ul>
+  <div class="container">
+    <div *ngFor="let row of layout.rows" class="row">
+      <div *ngFor="let col of row.cols" [class]="col.className">
+        <cdk-drop [data]="col.boxes">
+          <div *ngFor="let box of col.boxes" cdkDrag class="box">
+            <div *cdkDragPreview><h3>{{box.title}}</h3></div>
+
+            <h2>{{box.title}}</h2>
+            <p *ngFor="let p of box.p">{{p}}</p>
+          </div>
+        </cdk-drop>
       </div>
-    </cdk-drop>
+    </div>
   </div>
-
-  <div class="list">
-    <h2>Done</h2>
-    <cdk-drop
-      #two
-      (dropped)="drop($event)"
-      [lockAxis]="axisLock"
-      [data]="done"
-      [connectedTo]="[one]">
-      <div *ngFor="let item of done" cdkDrag>
-        {{item}}
-        <mat-icon cdkDragHandle svgIcon="dnd-move"></mat-icon>
-      </div>
-    </cdk-drop>
-  </div>
-</div>
-
-<div>
-  <div class="list horizontal">
-    <h2>Horizontal list</h2>
-    <cdk-drop
-      orientation="horizontal"
-      (dropped)="drop($event)"
-      [lockAxis]="axisLock"
-      [data]="horizontalData">
-      <div *ngFor="let item of horizontalData" cdkDrag>
-        {{item}}
-        <mat-icon cdkDragHandle svgIcon="dnd-move"></mat-icon>
-      </div>
-    </cdk-drop>
-  </div>
-</div>
-
-<div class="list">
-  <h2>Free dragging</h2>
-  <div cdkDrag class="free-draggable" [cdkDragLockAxis]="axisLock">Drag me around</div>
-</div>
-
-<div>
-  <h2>Data</h2>
-  <pre>{{todo.join(', ')}}</pre>
-  <pre>{{done.join(', ')}}</pre>
-  <pre>{{horizontalData.join(', ')}}</pre>
-</div>
-
-<div>
-  <h2>Axis locking</h2>
-  <mat-form-field>
-    <mat-label>Lock position along axis</mat-label>
-    <mat-select [(ngModel)]="axisLock">
-      <mat-option>None</mat-option>
-      <mat-option value="x">X axis</mat-option>
-      <mat-option value="y">Y axis</mat-option>
-    </mat-select>
-  </mat-form-field>
 </div>

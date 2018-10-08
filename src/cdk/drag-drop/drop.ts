@@ -21,8 +21,10 @@ import {
   QueryList,
   ViewEncapsulation,
   Optional,
+  NgZone,
 } from '@angular/core';
 import {Directionality} from '@angular/cdk/bidi';
+import {take} from 'rxjs/operators';
 import {CdkDrag} from './drag';
 import {DragDropRegistry} from './drag-drop-registry';
 import {CdkDragDrop, CdkDragEnter, CdkDragExit} from './drag-events';
@@ -106,6 +108,7 @@ export class CdkDrop<T = any> implements OnInit, OnDestroy {
   constructor(
     public element: ElementRef<HTMLElement>,
     private _dragDropRegistry: DragDropRegistry<CdkDrag, CdkDrop<T>>,
+    private _ngZone: NgZone,
     @Optional() private _dir?: Directionality) {}
 
   ngOnInit() {
@@ -212,6 +215,11 @@ export class CdkDrop<T = any> implements OnInit, OnDestroy {
    */
   exit(item: CdkDrag): void {
     this._reset();
+
+    this._ngZone.onStable.asObservable().pipe(take(1)).subscribe(() => {
+      this._positionCache.self = this.element.nativeElement.getBoundingClientRect();
+    });
+
     this.exited.emit({item, container: this});
   }
 
@@ -267,6 +275,8 @@ export class CdkDrop<T = any> implements OnInit, OnDestroy {
     // How many pixels the item's placeholder should be offset.
     const itemOffset = isHorizontal ? newPosition.left - currentPosition.left :
                                       newPosition.top - currentPosition.top;
+
+    console.log(itemOffset);
 
     // How many pixels all the other items should be offset.
     const siblingOffset = isHorizontal ? currentPosition.width * delta :
@@ -329,6 +339,8 @@ export class CdkDrop<T = any> implements OnInit, OnDestroy {
    * @param y Position of the item along the Y axis.
    */
   _canReturnItem(item: CdkDrag, x: number, y: number): boolean {
+    // console.log(item, x, y);
+    // return false;
     return isInsideClientRect(this._positionCache.self, x, y) && this.enterPredicate(item, this);
   }
 
