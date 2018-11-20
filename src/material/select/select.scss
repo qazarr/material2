@@ -75,12 +75,18 @@ $mat-select-placeholder-arrow-space: 2 * ($mat-select-arrow-size + $mat-select-a
 }
 
 .mat-select-arrow {
-  width: 0;
-  height: 0;
-  border-left: $mat-select-arrow-size solid transparent;
-  border-right: $mat-select-arrow-size solid transparent;
-  border-top: $mat-select-arrow-size solid;
   margin: 0 $mat-select-arrow-margin;
+  width: $mat-select-arrow-size * 2;
+  height: $mat-select-arrow-size;
+  position: relative;
+
+  svg {
+    fill: currentColor;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
 
 .mat-select-panel-wrap {
