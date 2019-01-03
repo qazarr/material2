@@ -7,7 +7,7 @@
  */
 import {Directionality} from '@angular/cdk/bidi';
 import {BooleanInput, coerceBooleanProperty} from '@angular/cdk/coercion';
-import {DOWN_ARROW, ENTER, ESCAPE, TAB, UP_ARROW} from '@angular/cdk/keycodes';
+import {DOWN_ARROW, ENTER, ESCAPE, TAB, UP_ARROW, hasModifierKey} from '@angular/cdk/keycodes';
 import {
   FlexibleConnectedPositionStrategy,
   Overlay,
@@ -406,7 +406,7 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
       event.preventDefault();
     }
 
-    if (this.activeOption && keyCode === ENTER && this.panelOpen) {
+    if (this.activeOption && keyCode === ENTER && this.panelOpen && !hasModifierKey(event)) {
       this.activeOption._selectViaInteraction();
       this._resetActiveItem();
       event.preventDefault();
