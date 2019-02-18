@@ -6,7 +6,7 @@ import {By} from '@angular/platform-browser';
 import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {CommonModule} from '@angular/common';
 import {Observable} from 'rxjs';
-import {MatTab, MatTabGroup, MatTabHeaderPosition, MatTabsModule} from './index';
+import {MatTab, MatTabGroup, MatTabHeaderPosition, MatTabsModule, MatTabHeader} from './index';
 
 
 describe('MatTabGroup', () => {
@@ -298,6 +298,22 @@ describe('MatTabGroup', () => {
       expect(tabLabelNativeElements.every(el => el.classList.contains('mat-focus-indicator')))
         .toBe(true);
     });
+
+    it('should be able to programmatically focus a particular tab', () => {
+      fixture.detectChanges();
+      const tabGroup: MatTabGroup =
+          fixture.debugElement.query(By.css('mat-tab-group')).componentInstance;
+      const tabHeader: MatTabHeader =
+          fixture.debugElement.query(By.css('mat-tab-header')).componentInstance;
+
+      expect(tabHeader.focusIndex).not.toBe(3);
+
+      tabGroup.focusTab(3);
+      fixture.detectChanges();
+
+      expect(tabHeader.focusIndex).not.toBe(3);
+    });
+
   });
 
   describe('aria labelling', () => {
