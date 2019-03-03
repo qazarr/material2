@@ -866,6 +866,22 @@ describe('MatMenu', () => {
     expect(document.activeElement).toBe(overlayContainerElement.querySelector('.mat-menu-panel'));
   }));
 
+  it('should close the menu if it is opened by a different trigger', fakeAsync(() => {
+    const fixture = createComponent(MenuWithMultipleTriggers);
+    fixture.detectChanges();
+
+    fixture.componentInstance.triggers.first.openMenu();
+    fixture.detectChanges();
+    flush();
+    expect(overlayContainerElement.querySelectorAll('.mat-menu-panel').length).toBe(1);
+
+    fixture.componentInstance.triggers.last.openMenu();
+    fixture.detectChanges();
+    flush();
+    expect(overlayContainerElement.querySelectorAll('.mat-menu-panel').length).toBe(1);
+
+  }));
+
   describe('lazy rendering', () => {
     it('should be able to render the menu content lazily', fakeAsync(() => {
       const fixture = createComponent(SimpleLazyMenu);
@@ -2589,4 +2605,18 @@ class SimpleMenuWithRepeaterInLazyContent {
 class LazyMenuWithOnPush {
   @ViewChild('triggerEl', {read: ElementRef}) rootTrigger: ElementRef;
   @ViewChild('menuItem', {read: ElementRef}) menuItemWithSubmenu: ElementRef;
+}
+
+@Component({
+  template: `
+    <button [matMenuTriggerFor]="menu">First trigger</button>
+    <button [matMenuTriggerFor]="menu">Second trigger</button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item>Item one</button>
+      <button mat-menu-item>Item two</button>
+    </mat-menu>
+  `
+})
+class MenuWithMultipleTriggers {
+  @ViewChildren(MatMenuTrigger) triggers: QueryList<MatMenuTrigger>;
 }

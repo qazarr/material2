@@ -238,6 +238,13 @@ export class _MatMenuBase implements AfterContentInit, MatMenuPanel<MatMenuItem>
   @Output() readonly closed: EventEmitter<void | 'click' | 'keydown' | 'tab'> =
       new EventEmitter<void | 'click' | 'keydown' | 'tab'>();
 
+
+  /**
+   * Stream that emits the trigger that the menu was opened by.
+   * @docs-private
+   */
+  @Output() openedBy = new EventEmitter<any>();
+
   /**
    * Event emitted when the menu is closed.
    * @deprecated Switch to `closed` instead
@@ -274,6 +281,7 @@ export class _MatMenuBase implements AfterContentInit, MatMenuPanel<MatMenuItem>
     this._directDescendantItems.destroy();
     this._tabSubscription.unsubscribe();
     this.closed.complete();
+    this.openedBy.complete();
   }
 
   /** Stream that emits whenever the hovered menu item changes. */
