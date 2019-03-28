@@ -395,7 +395,7 @@ export class MatSelectionList extends _MatSelectionListMixinBase implements CanD
       .skipPredicate(() => false)
       .withAllowedModifierKeys(['shiftKey']);
 
-    if (this._value) {
+    if (this._value && this._value.length) {
       this._setOptionsFromValues(this._value);
     }
 
