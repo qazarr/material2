@@ -1,6 +1,6 @@
 <ng-template>
   <div
-    class="mat-menu-panel"
+    class="mat-menu-panel mdc-menu-surface mdc-menu-surface--open"
     [ngClass]="_classList"
     (keydown)="_handleKeydown($event)"
     (click)="closed.emit('click')"
@@ -9,7 +9,7 @@
     (@transformMenu.done)="_onAnimationDone($event)"
     tabindex="-1"
     role="menu">
-    <div class="mat-menu-content">
+    <div class="mat-menu-content mdc-list">
       <ng-content></ng-content>
     </div>
   </div>

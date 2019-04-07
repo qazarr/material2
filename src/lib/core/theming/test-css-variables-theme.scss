@@ -20,5 +20,7 @@
 ._demo-css-variables-theme {
   $palette: mat-palette($mat-blue-grey);
   $theme: mat-dark-theme($palette, $palette, $palette);
-  @include angular-material-theme(replace-all-values($theme, var(--test-var)));
+
+  // TODO: some parts of our mapping to MDC's theming system don't handle CSS variables.
+  // @include angular-material-theme(replace-all-values($theme, var(--test-var)));
 }

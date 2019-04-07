@@ -38,6 +38,8 @@
     "@angular/elements": "8.0.0-beta.10",
     "@angular/forms": "8.0.0-beta.10",
     "@angular/platform-browser": "8.0.0-beta.10",
+    "@material/list": "^1.1.0",
+    "@material/menu-surface": "^1.1.0",
     "@webcomponents/custom-elements": "^1.1.0",
     "core-js": "^2.6.1",
     "rxjs": "^6.4.0",

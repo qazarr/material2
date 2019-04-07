@@ -316,13 +316,16 @@ export class MatMenuTrigger implements AfterContentInit, OnDestroy {
   private _initMenu(): void {
     this.menu.parentMenu = this.triggersSubmenu() ? this._parentMenu : undefined;
     this.menu.direction = this.dir;
-    this._setMenuElevation();
+
+    // TODO: re-enabled dynamic elevation after we figure out
+    // how elevation is supposed to work with MDC.
+    // this._setMenuElevation();
     this._setIsMenuOpen(true);
     this.menu.focusFirstItem(this._openedBy || 'program');
   }
 
   /** Updates the menu elevation based on the amount of parent menus that it has. */
-  private _setMenuElevation(): void {
+  _setMenuElevation(): void {
     if (this.menu.setElevation) {
       let depth = 0;
       let parentMenu = this.menu.parentMenu;

@@ -22,6 +22,8 @@ System.config({
     'rxjs': 'node_modules/rxjs/bundles/rxjs.umd.min.js',
     'rxjs/operators': 'system-rxjs-operators.js',
 
+    '@material/menu-surface': 'node:@material/menu-surface/dist/mdc.menuSurface.js',
+
     // Angular specific mappings.
     '@angular/core': 'node:@angular/core/bundles/core.umd.js',
     '@angular/common': 'node:@angular/common/bundles/common.umd.js',

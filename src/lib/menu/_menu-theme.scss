@@ -1,50 +1,42 @@
-@import '../core/style/elevation';
-@import '../core/theming/palette';
-@import '../core/theming/theming';
-@import '../core/typography/typography-utils';
+@import '@material/menu-surface/mixins';
+@import '@material/menu-surface/variables';
+@import '@material/list/mixins';
+@import '@material/list/variables';
+@import '@material/theme/functions';
 
+// TODO(crisbeto): copied over from Miles' branch. Should be reused before submitting for review.
+@import './mdc-helpers';
 
 @mixin mat-menu-theme($theme) {
-  $background: map-get($theme, background);
-  $foreground: map-get($theme, foreground);
+  @include mat-using-mdc-theme($theme) {
+    @include mdc-menu-surface-core-styles($mat-theme-styles-query);
+    @include mdc-list-without-ripple($mat-theme-styles-query);
 
-  .mat-menu-panel {
-    @include _mat-theme-overridable-elevation(4, $theme);
-    background: mat-color($background, 'card');
-  }
-
-  .mat-menu-item {
-    background: transparent;
-    color: mat-color($foreground, 'text');
-
-    &[disabled] {
+    .mat-menu-item[disabled] {
       &, &::after {
-        color: mat-color($foreground, 'disabled');
+        @include mdc-theme-prop(color, text-disabled-on-background);
       }
     }
-  }
 
-  .mat-menu-item .mat-icon-no-color,
-  .mat-menu-item-submenu-trigger::after {
-    color: mat-color($foreground, 'icon');
-  }
-
-  .mat-menu-item:hover,
-  .mat-menu-item.cdk-program-focused,
-  .mat-menu-item.cdk-keyboard-focused,
-  .mat-menu-item-highlighted {
-    &:not([disabled]) {
-      background: mat-color($background, 'hover');
+    .mat-menu-item .mat-icon-no-color,
+    .mat-menu-item-submenu-trigger::after {
+      @include mdc-theme-prop(color, text-icon-on-background);
     }
-  }
+
+    // MDC's hover and focus styles are tied to their ripples which we aren't using.
+    .mat-menu-item:hover,
+    .mat-menu-item.cdk-program-focused,
+    .mat-menu-item.cdk-keyboard-focused,
+    .mat-menu-item-highlighted {
+      &:not([disabled]) {
+        $color: $mdc-theme-on-surface;
+        background: rgba($color, mdc-states-opacity($color, hover));
+      }
+    }
+  };
 }
 
 @mixin mat-menu-typography($config) {
-  .mat-menu-item {
-    font: {
-      family: mat-font-family($config, body-1);
-      size: mat-font-size($config, body-1);
-      weight: mat-font-weight($config, body-1);
-    }
-  }
+  @include mdc-menu-surface-core-styles($mat-typography-styles-query);
+  @include mdc-list-without-ripple($mat-typography-styles-query);
 }
