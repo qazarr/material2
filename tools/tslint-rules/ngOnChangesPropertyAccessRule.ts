@@ -14,22 +14,28 @@ export class Rule extends Lint.Rules.TypedRule {
 }
 
 class Walker extends Lint.ProgramAwareRuleWalker {
-  visitMethodDeclaration(method: ts.MethodDeclaration) {
-    // Walk through all of the `ngOnChanges` methods that have at least one parameter.
-    if (method.name.getText() !== 'ngOnChanges' || !method.parameters.length || !method.body) {
-      return;
-    }
+  visitClassDeclaration(classDeclaration: ts.ClassDeclaration) {
+    classDeclaration.members.forEach(member => {
+      // Walk through all of the `ngOnChanges` methods that have at least one parameter.
+      if (ts.isMethodDeclaration(member)) {
+        if (member.name.getText() === 'ngOnChanges' && member.parameters.length && member.body) {
+          this._walkNgOnChanges(member, classDeclaration);
+        }
+      }
+    });
 
+    super.visitClassDeclaration(classDeclaration);
+  }
+
+  private _walkNgOnChanges(method: ts.MethodDeclaration, classDeclaration: ts.ClassDeclaration) {
     const walkChildren = (node: ts.Node) => {
       // Walk through all the nodes and look for property access expressions
       // (e.g. `changes.something`). Note that this is different from element access
       // expressions which look like `changes['something']`.
       if (tsutils.isPropertyAccessExpression(node)) {
-        const symbol = this.getTypeChecker().getTypeAtLocation(node.expression).symbol;
-
         // Add a failure if we're trying to access a property on a SimpleChanges object
         // directly, because it can cause issues with Closure's property renaming.
-        if (symbol && symbol.name === 'SimpleChanges') {
+        if (this._isAccessingSimpleChanges(node.expression)) {
           const expressionName = node.expression.getText();
           const propName = node.name.getText();
 
@@ -37,6 +43,18 @@ class Walker extends Lint.ProgramAwareRuleWalker {
                                       'is not allowed. Use index access instead (e.g. ' +
                                       `${expressionName}.${propName} should be ` +
                                       `${expressionName}['${propName}']).`);
+        }
+      } else if (tsutils.isElementAccessExpression(node) &&
+                  this._isAccessingSimpleChanges(node.expression)) {
+
+        const arg = node.argumentExpression;
+
+        if (tsutils.isStringLiteral(arg) || tsutils.isNoSubstitutionTemplateLiteral(arg)) {
+          const propName = arg.getText().slice(1, -1);
+
+          if (propName === 'disabled') {
+            console.log(propName, this._hasProperty(propName, classDeclaration));
+          }
         }
       }
 
@@ -47,7 +65,49 @@ class Walker extends Lint.ProgramAwareRuleWalker {
       }
     };
 
-    method.body.forEachChild(walkChildren);
-    super.visitMethodDeclaration(method);
+    method.body!.forEachChild(walkChildren);
+  }
+
+  private _hasProperty(propName: string, classDeclaration: ts.ClassDeclaration): boolean {
+    const typeChecker = this.getTypeChecker();
+
+    return (function checkDeclaration(node: ts.Node & {
+      heritageClauses?: ts.NodeArray<ts.HeritageClause>
+    }) {
+      const type = typeChecker.getTypeAtLocation(node);
+
+      console.log(type.symbol && type.symbol.name, typeChecker.getPropertiesOfType(type).length, typeChecker.getAugmentedPropertiesOfType(type).length);
+
+      // console.log(node.kind, node.getText().slice(0, 50));
+
+      if (type.getProperty(propName)) {
+        return true;
+      } else if (!node.heritageClauses) {
+        return false;
+      }
+
+      for (const clause of node.heritageClauses) {
+        for (const clauseType of clause.types) {
+          const resolvedSymbol = typeChecker.getSymbolAtLocation(clauseType.expression);
+
+          if (resolvedSymbol) {
+            for (const declaration of resolvedSymbol.declarations) {
+              // console.log(declaration.kind, declaration.getText().slice(0, 50));
+
+              if (checkDeclaration(declaration)) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+
+      return false;
+    })(classDeclaration);
+  }
+
+  private _isAccessingSimpleChanges(node: ts.Expression): boolean {
+    const symbol = this.getTypeChecker().getTypeAtLocation(node).symbol;
+    return symbol && symbol.name === 'SimpleChanges';
   }
 }
