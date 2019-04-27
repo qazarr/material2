@@ -56,7 +56,7 @@ export declare class MatTableDataSource<T> extends DataSource<T> {
     paginator: MatPaginator | null;
     sort: MatSort | null;
     sortData: ((data: T[], sort: MatSort) => T[]);
-    sortingDataAccessor: ((data: T, sortHeaderId: string) => string | number);
+    sortingDataAccessor: (data: T, sortHeaderId: string) => string | number;
     constructor(initialData?: T[]);
     _filterData(data: T[]): T[];
     _orderData(data: T[]): T[];
