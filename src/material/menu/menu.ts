@@ -414,8 +414,12 @@ export class _MatMenuBase implements AfterContentInit, MatMenuPanel<MatMenuItem>
     this._allItems.changes
       .pipe(startWith(this._allItems))
       .subscribe((items: QueryList<MatMenuItem>) => {
-        this._directDescendantItems.reset(items.filter(item => item._parentMenu === this));
+        const i = items.filter(item => item._parentMenu === this);
+
+        this._directDescendantItems.reset(i);
         this._directDescendantItems.notifyOnChanges();
+
+        console.log(i.length);
       });
   }
 }

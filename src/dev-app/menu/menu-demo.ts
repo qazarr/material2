@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 
 
 @Component({
@@ -14,6 +14,7 @@ import {Component} from '@angular/core';
   selector: 'menu-demo',
   templateUrl: 'menu-demo.html',
   styleUrls: ['menu-demo.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MenuDemo {
   selected = '';
@@ -31,4 +32,10 @@ export class MenuDemo {
   ];
 
   select(text: string) { this.selected = text; }
+
+  constructor() {
+    setInterval(() => {
+      this.items.push({text: `Item ${Date.now()}`});
+    }, 2000);
+  }
 }
