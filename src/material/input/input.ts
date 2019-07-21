@@ -29,7 +29,7 @@ import {
   ErrorStateMatcher,
   mixinErrorState,
 } from '@angular/material/core';
-import {MatFormFieldControl} from '@angular/material/form-field';
+import {MatFormFieldControl, MatFormField} from '@angular/material/form-field';
 import {Subject} from 'rxjs';
 import {getMatInputUnsupportedTypeError} from './input-errors';
 import {MAT_INPUT_VALUE_ACCESSOR} from './input-value-accessor';
@@ -76,7 +76,7 @@ const _MatInputMixinBase: CanUpdateErrorStateCtor & typeof MatInputBase =
     // Native input properties that are overwritten by Angular inputs need to be synced with
     // the native input element. Otherwise property bindings for those don't work.
     '[attr.id]': 'id',
-    '[attr.placeholder]': 'placeholder',
+    '[attr.placeholder]': '_getNativePlaceholderValue()',
     '[disabled]': 'disabled',
     '[required]': 'required',
     '[attr.readonly]': 'readonly && !_isNativeSelect || null',
@@ -231,8 +231,9 @@ export class MatInput extends _MatInputMixinBase implements MatFormFieldControl<
     _defaultErrorStateMatcher: ErrorStateMatcher,
     @Optional() @Self() @Inject(MAT_INPUT_VALUE_ACCESSOR) inputValueAccessor: any,
     private _autofillMonitor: AutofillMonitor,
-    ngZone: NgZone) {
-
+    ngZone: NgZone,
+    // @breaking-change 8.0.0 `_formField` parameter to be made required.
+    @Optional() private _formField?: MatFormField) {
     super(_defaultErrorStateMatcher, _parentForm, _parentFormGroup, ngControl);
 
     const element = this._elementRef.nativeElement;
@@ -335,6 +336,16 @@ export class MatInput extends _MatInputMixinBase implements MatFormFieldControl<
   /** Determines if the component host is a textarea. */
   _isTextarea() {
     return this._elementRef.nativeElement.nodeName.toLowerCase() === 'textarea';
+  }
+
+  /** Determines the value of the native `placeholder` attribute that should be used in the DOM. */
+  _getNativePlaceholderValue() {
+    // If we're hiding the native placeholder, it should also be cleared from the DOM, otherwise
+    // screen readers will read it out twice: once from the label and once from the attribute.
+    // TODO: can be removed once we get rid of the `legacy` style for the form field, because it's
+    // the only one that supports promoting the placeholder to a label.
+    const formField = this._formField;
+    return (!formField || !formField._hideControlPlaceholder()) ? this.placeholder : null;
   }
 
   /** Does some manual dirty checking on the native input `value` property. */
