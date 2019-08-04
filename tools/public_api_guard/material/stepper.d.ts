@@ -10,10 +10,19 @@ export declare class MatHorizontalStepper extends MatStepper {
     labelPosition: 'bottom' | 'end';
 }
 
-export declare class MatStep extends CdkStep implements ErrorStateMatcher {
+export declare class MatStep extends CdkStep implements ErrorStateMatcher, AfterContentInit, OnDestroy {
+    _lazyContent: MatStepContent;
+    _portal: TemplatePortal;
     stepLabel: MatStepLabel;
-    constructor(stepper: MatStepper, _errorStateMatcher: ErrorStateMatcher, stepperOptions?: StepperOptions);
+    constructor(stepper: MatStepper, _errorStateMatcher: ErrorStateMatcher, stepperOptions?: StepperOptions, _viewContainerRef?: ViewContainerRef | undefined);
     isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean;
+    ngAfterContentInit(): void;
+    ngOnDestroy(): void;
+}
+
+export declare class MatStepContent {
+    _template: TemplateRef<any>;
+    constructor(_template: TemplateRef<any>);
 }
 
 export declare class MatStepHeader extends CdkStepHeader implements OnDestroy {

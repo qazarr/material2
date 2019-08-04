@@ -193,7 +193,7 @@ export class CdkStep implements OnChanges {
 
   /** @breaking-change 8.0.0 remove the `?` after `stepperOptions` */
   constructor(
-    @Inject(forwardRef(() => CdkStepper)) private _stepper: CdkStepper,
+    @Inject(forwardRef(() => CdkStepper)) protected _stepper: CdkStepper,
     @Optional() @Inject(STEPPER_GLOBAL_OPTIONS) stepperOptions?: StepperOptions) {
     this._stepperOptions = stepperOptions ? stepperOptions : {};
     this._displayDefaultIndicatorType = this._stepperOptions.displayDefaultIndicatorType !== false;

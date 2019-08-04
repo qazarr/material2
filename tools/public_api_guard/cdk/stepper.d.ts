@@ -1,6 +1,7 @@
 export declare class CdkStep implements OnChanges {
     _displayDefaultIndicatorType: boolean;
     _showError: boolean;
+    protected _stepper: CdkStepper;
     ariaLabel: string;
     ariaLabelledby: string;
     completed: boolean;
