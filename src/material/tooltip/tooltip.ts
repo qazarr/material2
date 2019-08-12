@@ -550,10 +550,10 @@ export class TooltipComponent implements OnDestroy {
   tooltipClass: string|string[]|Set<string>|{[key: string]: any};
 
   /** The timeout ID of any current timer set to show the tooltip */
-  _showTimeoutId: number | null;
+  _showTimeoutId: number | undefined;
 
   /** The timeout ID of any current timer set to hide the tooltip */
-  _hideTimeoutId: number | null;
+  _hideTimeoutId: number | undefined;
 
   /** Property watched by the animation framework to show or hide the tooltip */
   _visibility: TooltipVisibility = 'initial';
@@ -577,16 +577,13 @@ export class TooltipComponent implements OnDestroy {
    */
   show(delay: number): void {
     // Cancel the delayed hide if it is scheduled
-    if (this._hideTimeoutId) {
-      clearTimeout(this._hideTimeoutId);
-      this._hideTimeoutId = null;
-    }
+    clearTimeout(this._hideTimeoutId);
 
     // Body interactions should cancel the tooltip if there is a delay in showing.
     this._closeOnInteraction = true;
     this._showTimeoutId = setTimeout(() => {
       this._visibility = 'visible';
-      this._showTimeoutId = null;
+      this._showTimeoutId = undefined;
 
       // Mark for check so if any parent component has set the
       // ChangeDetectionStrategy to OnPush it will be checked anyways
@@ -600,14 +597,11 @@ export class TooltipComponent implements OnDestroy {
    */
   hide(delay: number): void {
     // Cancel the delayed show if it is scheduled
-    if (this._showTimeoutId) {
-      clearTimeout(this._showTimeoutId);
-      this._showTimeoutId = null;
-    }
+    clearTimeout(this._showTimeoutId);
 
     this._hideTimeoutId = setTimeout(() => {
       this._visibility = 'hidden';
-      this._hideTimeoutId = null;
+      this._hideTimeoutId = undefined;
 
       // Mark for check so if any parent component has set the
       // ChangeDetectionStrategy to OnPush it will be checked anyways
@@ -626,6 +620,8 @@ export class TooltipComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
+    clearTimeout(this._showTimeoutId);
+    clearTimeout(this._hideTimeoutId);
     this._onHide.complete();
   }
 
