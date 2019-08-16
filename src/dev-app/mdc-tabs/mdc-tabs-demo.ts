@@ -7,6 +7,7 @@
  */
 
 import {Component} from '@angular/core';
+import {EXAMPLE_COMPONENTS} from '@angular/material-examples';
 
 @Component({
   moduleId: module.id,
@@ -15,6 +16,5 @@ import {Component} from '@angular/core';
   styleUrls: ['mdc-tabs-demo.css'],
 })
 export class MdcTabsDemo {
-  links = ['First', 'Second', 'Third'];
-  activeLink = this.links[0];
+  examples = Object.keys(EXAMPLE_COMPONENTS).filter(example => example.startsWith('mdc-tab-'));
 }

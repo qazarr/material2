@@ -9,6 +9,7 @@ import {CdkTableModule} from '@angular/cdk/table';
 import {CdkTreeModule} from '@angular/cdk/tree';
 import {NgModule} from '@angular/core';
 import {MatPopoverEditModule} from '@angular/material-experimental/popover-edit';
+import {MatTabsModule as MdcMatTabsModule} from '@angular/material-experimental/mdc-tabs';
 
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatBadgeModule} from '@angular/material/badge';
@@ -93,6 +94,7 @@ import {MatTreeModule} from '@angular/material/tree';
     ScrollingModule,
     PortalModule,
     MatNativeDateModule,
+    MdcMatTabsModule,
   ],
   exports: [
     A11yModule,
@@ -140,6 +142,7 @@ import {MatTreeModule} from '@angular/material/tree';
     ScrollingModule,
     PortalModule,
     MatNativeDateModule,
+    MdcMatTabsModule,
   ]
 })
 export class ExampleMaterialModule {}
