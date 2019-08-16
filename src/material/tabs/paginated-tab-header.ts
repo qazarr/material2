@@ -59,7 +59,7 @@ const HEADER_SCROLL_DELAY = 650;
 const HEADER_SCROLL_INTERVAL = 100;
 
 /** Item inside a paginated tab header. */
-type MatPaginatedTabHeaderItem = FocusableOption & {elementRef: ElementRef};
+export type MatPaginatedTabHeaderItem = FocusableOption & {elementRef: ElementRef};
 
 /**
  * Base class for a tab header that supported pagination.
@@ -67,7 +67,7 @@ type MatPaginatedTabHeaderItem = FocusableOption & {elementRef: ElementRef};
 export abstract class MatPaginatedTabHeader implements AfterContentChecked, AfterContentInit,
   AfterViewInit, OnDestroy {
   abstract _items: QueryList<MatPaginatedTabHeaderItem>;
-  abstract _inkBar: MatInkBar;
+  abstract _inkBar: {hide: () => void, alignToElement: (element: HTMLElement) => void};
   abstract _tabListContainer: ElementRef<HTMLElement>;
   abstract _tabList: ElementRef<HTMLElement>;
   abstract _nextPaginator: ElementRef<HTMLElement>;

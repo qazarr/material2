@@ -1,0 +1,22 @@
+@import '@material/feature-targeting/functions';
+@import '@material/tab-indicator/mixins';
+@import '../../material/core/style/noop-animation';
+@import '../mdc-helpers/mdc-helpers';
+@import './tabs-common';
+
+@include mdc-tab-indicator-core-styles($query: $mat-base-styles-query);
+@include paginated-tab-header;
+
+.mat-mdc-tab-label-container {
+  @include paginated-tab-header-container;
+}
+
+.mat-mdc-tab-header-pagination-disabled {
+  box-shadow: none;
+  cursor: default;
+  opacity: 0.4;
+}
+
+.mat-mdc-tab-labels {
+  @include paginated-tab-header-item-wrapper;
+}

@@ -15,4 +15,6 @@ import {Component} from '@angular/core';
   styleUrls: ['mdc-tabs-demo.css'],
 })
 export class MdcTabsDemo {
+  links = ['First', 'Second', 'Third'];
+  activeLink = this.links[0];
 }
