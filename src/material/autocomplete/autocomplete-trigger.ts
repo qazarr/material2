@@ -155,6 +155,9 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
   /** Whether the element is inside of a ShadowRoot component. */
   private _isInsideShadowRoot: boolean;
 
+  /** Whether the user has interacted with the panel after it was opened. */
+  private _hasInteracted = false;
+
   /** Stream of keyboard events that can close the panel. */
   private readonly _closeKeyEventStream = new Subject<void>();
 
@@ -420,6 +423,7 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
       }
 
       if (isArrowKey || this.autocomplete._keyManager.activeItem !== prevActiveItem) {
+        this._hasInteracted = true;
         this._scrollToOption();
       }
     }
@@ -529,7 +533,9 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
             // that were created, and flatten it so our stream only emits closing events...
             switchMap(() => {
               const wasOpen = this.panelOpen;
-              this._resetActiveItem();
+              if (!this._hasInteracted) {
+                this._resetActiveItem();
+              }
               this.autocomplete._setVisibility();
 
               if (this.panelOpen) {
@@ -652,6 +658,7 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
 
     if (overlayRef && !overlayRef.hasAttached()) {
       overlayRef.attach(this._portal);
+      this._resetActiveItem();
       this._closingActionsSubscription = this._subscribeToClosingActions();
     }
 
@@ -659,6 +666,7 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
 
     this.autocomplete._setVisibility();
     this.autocomplete._isOpen = this._overlayAttached = true;
+    this._hasInteracted = false;
 
     // We need to do an extra `panelOpen` check in here, because the
     // autocomplete won't be shown if there are no options.
