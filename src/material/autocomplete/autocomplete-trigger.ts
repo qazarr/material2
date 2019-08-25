@@ -116,7 +116,7 @@ export function getMatAutocompleteMissingPanelError(): Error {
     // Note: we use `focusin`, as opposed to `focus`, in order to open the panel
     // a little earlier. This avoids issues where IE delays the focusing of the input.
     '(focusin)': '_handleFocus()',
-    '(blur)': '_onTouched()',
+    '(blur)': '_handleBlur()',
     '(input)': '_handleInput($event)',
     '(keydown)': '_handleKeydown($event)',
   },
@@ -337,7 +337,7 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
   /** Stream of autocomplete option selections. */
   readonly optionSelections: Observable<MatOptionSelectionChange> = defer(() => {
     if (this.autocomplete && this.autocomplete.options) {
-     return merge(...this.autocomplete.options.map(option => option.onSelectionChange));
+      return merge(...this.autocomplete.options.map(option => option.onSelectionChange));
     }
 
     // If there are any subscribers before `ngAfterViewInit`, the `autocomplete` will be undefined.
@@ -457,6 +457,16 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
       this._previousValue = this._element.nativeElement.value;
       this._attachOverlay();
       this._floatLabel(true);
+    }
+  }
+
+  _handleBlur(): void {
+    // Blur events will fire as soon as the user has their pointer down on an option. We don't
+    // mark the control as touched in this case, because it can cause the validation to be run
+    // before a value has been assigned. Instead, we skip marking it as touched from here
+    // and we do so once the panel has closed.
+    if (!this.panelOpen) {
+      this._onTouched();
     }
   }
 
@@ -604,6 +614,7 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
     }
 
     this.closePanel();
+    this._onTouched();
   }
 
   /**
