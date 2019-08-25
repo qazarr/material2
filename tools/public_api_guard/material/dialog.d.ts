@@ -33,7 +33,8 @@ export declare class MatDialog implements OnDestroy {
     closeAll(): void;
     getDialogById(id: string): MatDialogRef<any> | undefined;
     ngOnDestroy(): void;
-    open<T, D = any, R = any>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>, config?: MatDialogConfig<D>): MatDialogRef<T, R>;
+    open<T, D = any, R = any>(component: ComponentType<T>, config?: MatDialogConfig<D>): MatDialogRef<T, R>;
+    open<T, D = any, R = any>(template: TemplateRef<T>, config?: MatDialogConfig<D>): MatDialogRef<T, R>;
     static ɵfac: i0.ɵɵFactoryDef<MatDialog>;
     static ɵprov: i0.ɵɵInjectableDef<MatDialog>;
 }

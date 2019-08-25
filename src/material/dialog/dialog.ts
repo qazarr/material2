@@ -115,11 +115,22 @@ export class MatDialog implements OnDestroy {
 
   /**
    * Opens a modal dialog containing the given component.
-   * @param componentOrTemplateRef Type of the component to load into the dialog,
-   *     or a TemplateRef to instantiate as the dialog content.
+   * @param component Type of the component to load into the dialog.
    * @param config Extra configuration options.
    * @returns Reference to the newly-opened dialog.
    */
+  open<T, D = any, R = any>(component: ComponentType<T>,
+                            config?: MatDialogConfig<D>): MatDialogRef<T, R>;
+
+  /**
+   * Opens a modal dialog containing the given template.
+   * @param template TemplateRef to instantiate as the dialog content.
+   * @param config Extra configuration options.
+   * @returns Reference to the newly-opened dialog.
+   */
+  open<T, D = any, R = any>(template: TemplateRef<T>,
+                            config?: MatDialogConfig<D>): MatDialogRef<T, R>;
+
   open<T, D = any, R = any>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>,
           config?: MatDialogConfig<D>): MatDialogRef<T, R> {
 
