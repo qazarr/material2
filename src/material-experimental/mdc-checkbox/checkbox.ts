@@ -56,6 +56,8 @@ export class MatCheckboxChange {
   host: {
     'class': 'mat-mdc-checkbox',
     '[attr.tabindex]': 'null',
+    '[attr.aria-label]': 'null',
+    '[attr.aria-labelledby]': 'null',
     '[class.mat-primary]': 'color == "primary"',
     '[class.mat-accent]': 'color == "accent"',
     '[class.mat-warn]': 'color == "warn"',
