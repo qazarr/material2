@@ -28,9 +28,18 @@ export const enum RtlScrollAxisType {
 /** Cached result of the way the browser handles the horizontal scroll axis in RTL mode. */
 let rtlScrollAxisType: RtlScrollAxisType|undefined;
 
+
+/** Cached result of whether the browser supports `scrollBehavior`. */
+let scrollBehaviorSupported: boolean;
+
 /** Check whether the browser supports scroll behaviors. */
 export function supportsScrollBehavior(): boolean {
-  return !!(typeof document == 'object' && 'scrollBehavior' in document.documentElement!.style);
+  if (scrollBehaviorSupported == null) {
+    scrollBehaviorSupported =
+        !!(typeof document == 'object' && 'scrollBehavior' in document.documentElement!.style);
+  }
+
+  return scrollBehaviorSupported;
 }
 
 /**
