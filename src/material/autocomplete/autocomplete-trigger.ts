@@ -358,21 +358,23 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
 
   /** Stream of clicks outside of the autocomplete panel. */
   private _getOutsideClickStream(): Observable<any> {
+    // Use capturing so we can close even if propagation is stopped.
+    const eventOptions = {capture: true};
     return merge(
-               fromEvent(this._document, 'click') as Observable<MouseEvent>,
-               fromEvent(this._document, 'touchend') as Observable<TouchEvent>)
-        .pipe(filter(event => {
-          // If we're in the Shadow DOM, the event target will be the shadow root, so we have to
-          // fall back to check the first element in the path of the click event.
-          const clickTarget =
-              (this._isInsideShadowRoot && event.composedPath ? event.composedPath()[0] :
-                                                                event.target) as HTMLElement;
-          const formField = this._formField ? this._formField._elementRef.nativeElement : null;
+      fromEvent(this._document, 'click', eventOptions) as Observable<MouseEvent>,
+      fromEvent(this._document, 'touchend', eventOptions) as Observable<TouchEvent>
+    ).pipe(filter(event => {
+      // If we're in the Shadow DOM, the event target will be the shadow root, so we have to
+      // fall back to check the first element in the path of the click event.
+      const clickTarget =
+          (this._isInsideShadowRoot && event.composedPath ? event.composedPath()[0] :
+                                                            event.target) as HTMLElement;
+      const formField = this._formField ? this._formField._elementRef.nativeElement : null;
 
-          return this._overlayAttached && clickTarget !== this._element.nativeElement &&
-              (!formField || !formField.contains(clickTarget)) &&
-              (!!this._overlayRef && !this._overlayRef.overlayElement.contains(clickTarget));
-        }));
+      return this._overlayAttached && clickTarget !== this._element.nativeElement &&
+          (!formField || !formField.contains(clickTarget)) &&
+          (!!this._overlayRef && !this._overlayRef.overlayElement.contains(clickTarget));
+    }));
   }
 
   // Implemented as part of ControlValueAccessor.
