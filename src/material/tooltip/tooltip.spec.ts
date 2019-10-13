@@ -640,9 +640,28 @@ describe('MatTooltip', () => {
       expect(overlayContainerElement.textContent).toContain(initialTooltipMessage);
     }));
 
+    it('should hide when pressing escape', fakeAsync(() => {
+      tooltipDirective.show();
+      tick(0);
+      fixture.detectChanges();
+      tick(500);
+
+      expect(tooltipDirective._isTooltipVisible()).toBe(true);
+      expect(overlayContainerElement.textContent).toContain(initialTooltipMessage);
+
+      dispatchKeyboardEvent(document.body, 'keydown', ESCAPE);
+      tick(0);
+      fixture.detectChanges();
+      tick(500);
+      fixture.detectChanges();
+
+      expect(tooltipDirective._isTooltipVisible()).toBe(false);
+      expect(overlayContainerElement.textContent).toBe('');
+    }));
+
     it('should not throw when pressing ESCAPE', fakeAsync(() => {
       expect(() => {
-        dispatchKeyboardEvent(buttonElement, 'keydown', ESCAPE);
+        dispatchKeyboardEvent(document.body, 'keydown', ESCAPE);
         fixture.detectChanges();
       }).not.toThrow();
 
@@ -655,7 +674,7 @@ describe('MatTooltip', () => {
       tick(0);
       fixture.detectChanges();
 
-      const event = dispatchKeyboardEvent(buttonElement, 'keydown', ESCAPE);
+      const event = dispatchKeyboardEvent(document.body, 'keydown', ESCAPE);
       fixture.detectChanges();
       flush();
 
@@ -669,7 +688,7 @@ describe('MatTooltip', () => {
 
       const event = createKeyboardEvent('keydown', ESCAPE);
       Object.defineProperty(event, 'altKey', {get: () => true});
-      dispatchEvent(buttonElement, event);
+      dispatchEvent(document.body, event);
       fixture.detectChanges();
       flush();
 
