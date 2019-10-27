@@ -87,28 +87,6 @@ export interface ConnectedPosition {
     weight?: number;
 }
 
-export declare class ConnectedPositionStrategy implements PositionStrategy {
-    get _isRtl(): boolean;
-    _positionStrategy: FlexibleConnectedPositionStrategy;
-    _preferredPositions: ConnectionPositionPair[];
-    get onPositionChange(): Observable<ConnectedOverlayPositionChange>;
-    get positions(): ConnectionPositionPair[];
-    constructor(originPos: OriginConnectionPosition, overlayPos: OverlayConnectionPosition, connectedTo: ElementRef<HTMLElement>, viewportRuler: ViewportRuler, document: Document, platform: Platform, overlayContainer: OverlayContainer);
-    apply(): void;
-    attach(overlayRef: OverlayReference): void;
-    detach(): void;
-    dispose(): void;
-    recalculateLastPosition(): void;
-    setOrigin(origin: ElementRef): this;
-    withDirection(dir: 'ltr' | 'rtl'): this;
-    withFallbackPosition(originPos: OriginConnectionPosition, overlayPos: OverlayConnectionPosition, offsetX?: number, offsetY?: number): this;
-    withLockedPosition(isLocked: boolean): this;
-    withOffsetX(offset: number): this;
-    withOffsetY(offset: number): this;
-    withPositions(positions: ConnectionPositionPair[]): this;
-    withScrollableContainers(scrollables: CdkScrollable[]): void;
-}
-
 export declare class ConnectionPositionPair {
     offsetX?: number | undefined;
     offsetY?: number | undefined;
@@ -252,7 +230,6 @@ export declare class OverlayModule {
 
 export declare class OverlayPositionBuilder {
     constructor(_viewportRuler: ViewportRuler, _document: any, _platform: Platform, _overlayContainer: OverlayContainer);
-    connectedTo(elementRef: ElementRef, originPos: OriginConnectionPosition, overlayPos: OverlayConnectionPosition): ConnectedPositionStrategy;
     flexibleConnectedTo(origin: FlexibleConnectedPositionStrategyOrigin): FlexibleConnectedPositionStrategy;
     global(): GlobalPositionStrategy;
     static ɵfac: i0.ɵɵFactoryDef<OverlayPositionBuilder>;
