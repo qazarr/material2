@@ -242,8 +242,7 @@ export class MatDialog implements OnDestroy {
 
     // Create a reference to the dialog we're creating in order to give the user a handle
     // to modify and close it.
-    const dialogRef =
-        new MatDialogRef<T, R>(overlayRef, dialogContainer, config.id);
+    const dialogRef = new MatDialogRef<T, R>(overlayRef, dialogContainer, config.id);
 
     // When the dialog backdrop is clicked, we want to close it.
     if (config.hasBackdrop) {
@@ -261,7 +260,8 @@ export class MatDialog implements OnDestroy {
     } else {
       const injector = this._createInjector<T>(config, dialogRef, dialogContainer);
       const contentRef = dialogContainer.attachComponentPortal<T>(
-          new ComponentPortal(componentOrTemplateRef, config.viewContainerRef, injector));
+          new ComponentPortal(componentOrTemplateRef, config.viewContainerRef, injector,
+            config.componentFactoryResolver));
       dialogRef.componentInstance = contentRef.instance;
     }
 
