@@ -566,6 +566,11 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
 
   ngDoCheck() {
     if (this.ngControl) {
+      // The disabled state might go out of sync if the form group is swapped out. See #17860.
+      if (this.ngControl.disabled !== this.disabled) {
+        this.disabled = !!this.ngControl.disabled;
+      }
+
       this.updateErrorState();
     }
   }
