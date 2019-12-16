@@ -937,6 +937,28 @@ describe('MatStepper', () => {
 
       expect(headerRipples.every(ripple => ripple.disabled)).toBe(true);
     });
+
+    it('should be able to mark all steps as interacted', () => {
+      const fixture = createComponent(SimpleMatHorizontalStepperApp);
+      fixture.detectChanges();
+
+      const stepper: MatStepper =
+          fixture.debugElement.query(By.directive(MatStepper)).componentInstance;
+
+      expect(stepper.steps.map(step => step.interacted)).toEqual([false, false, false]);
+
+      stepper.next();
+      fixture.detectChanges();
+      expect(stepper.steps.map(step => step.interacted)).toEqual([true, false, false]);
+
+      stepper.next();
+      fixture.detectChanges();
+      expect(stepper.steps.map(step => step.interacted)).toEqual([true, true, false]);
+
+      stepper.next();
+      fixture.detectChanges();
+      expect(stepper.steps.map(step => step.interacted)).toEqual([true, true, true]);
+    });
   });
 
   describe('linear stepper with valid step', () => {
