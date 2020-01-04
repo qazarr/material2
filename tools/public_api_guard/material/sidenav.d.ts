@@ -2,12 +2,13 @@ export declare const MAT_DRAWER_DEFAULT_AUTOSIZE: InjectionToken<boolean>;
 
 export declare function MAT_DRAWER_DEFAULT_AUTOSIZE_FACTORY(): boolean;
 
-export declare class MatDrawer implements AfterContentInit, AfterContentChecked, OnDestroy {
+export declare class MatDrawer implements AfterViewInit, AfterContentChecked, OnDestroy {
     _animationEnd: Subject<AnimationEvent>;
     _animationStarted: Subject<AnimationEvent>;
     _animationState: 'open-instant' | 'open' | 'void';
     get _closedStream(): Observable<void>;
     _container?: MatDrawerContainer | undefined;
+    _content: ElementRef<HTMLElement>;
     readonly _modeChanged: Subject<void>;
     get _openedStream(): Observable<void>;
     get _width(): number;
@@ -25,13 +26,13 @@ export declare class MatDrawer implements AfterContentInit, AfterContentChecked,
     get openedStart(): Observable<void>;
     get position(): 'start' | 'end';
     set position(value: 'start' | 'end');
-    constructor(_elementRef: ElementRef<HTMLElement>, _focusTrapFactory: FocusTrapFactory, _focusMonitor: FocusMonitor, _platform: Platform, _ngZone: NgZone, _doc: any,
+    constructor(_elementRef: ElementRef<HTMLElement>, _focusTrapFactory: FocusTrapFactory, _focusMonitor: FocusMonitor, _platform: Platform, _ngZone: NgZone, _document: any,
     _container?: MatDrawerContainer | undefined);
     _animationDoneListener(event: AnimationEvent): void;
     _animationStartListener(event: AnimationEvent): void;
     close(): Promise<MatDrawerToggleResult>;
     ngAfterContentChecked(): void;
-    ngAfterContentInit(): void;
+    ngAfterViewInit(): void;
     ngOnDestroy(): void;
     open(openedVia?: FocusOrigin): Promise<MatDrawerToggleResult>;
     toggle(isOpen?: boolean, openedVia?: FocusOrigin): Promise<MatDrawerToggleResult>;

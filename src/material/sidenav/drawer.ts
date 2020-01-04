@@ -37,6 +37,7 @@ import {
   ViewEncapsulation,
   HostListener,
   HostBinding,
+  AfterViewInit,
 } from '@angular/core';
 import {fromEvent, merge, Observable, Subject} from 'rxjs';
 import {
@@ -137,12 +138,19 @@ export class MatDrawerContent extends CdkScrollable implements AfterContentInit 
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
 })
-export class MatDrawer implements AfterContentInit, AfterContentChecked, OnDestroy {
+export class MatDrawer implements AfterViewInit, AfterContentChecked, OnDestroy {
   private _focusTrap: FocusTrap;
   private _elementFocusedBeforeDrawerWasOpened: HTMLElement | null = null;
+  private _document: Document;
 
   /** Whether the drawer is initialized. Used for disabling the initial animation. */
   private _enableAnimations = false;
+
+  /** Whether the view of the component has been attached. */
+  private _isAttached: boolean;
+
+  /** Anchor node used to restore the drawer to its initial position. */
+  private _anchor: Comment | null;
 
   /** The side that the drawer is attached to. */
   @Input()
@@ -150,7 +158,12 @@ export class MatDrawer implements AfterContentInit, AfterContentChecked, OnDestr
   set position(value: 'start' | 'end') {
     // Make sure we have a valid value.
     value = value === 'end' ? 'end' : 'start';
-    if (value != this._position) {
+    if (value !== this._position) {
+      // Static inputs in Ivy are set before the element is in the DOM.
+      if (this._isAttached) {
+        this._updatePositionInParent(value);
+      }
+
       this._position = value;
       this.onPositionChanged.emit();
     }
@@ -258,6 +271,9 @@ export class MatDrawer implements AfterContentInit, AfterContentChecked, OnDestr
   // tslint:disable-next-line:no-output-on-prefix
   @Output('positionChanged') onPositionChanged: EventEmitter<void> = new EventEmitter<void>();
 
+  /** Reference to the inner element that contains all the content. */
+  @ViewChild('content') _content: ElementRef<HTMLElement>;
+
   /**
    * An observable that emits when the drawer mode changes. This is used by the drawer container to
    * to know when to when the mode changes so it can adapt the margins on the content.
@@ -269,17 +285,18 @@ export class MatDrawer implements AfterContentInit, AfterContentChecked, OnDestr
               private _focusMonitor: FocusMonitor,
               private _platform: Platform,
               private _ngZone: NgZone,
-              @Optional() @Inject(DOCUMENT) private _doc: any,
+              @Optional() @Inject(DOCUMENT) _document: any,
               /**
                * @deprecated `_container` parameter to be made required.
                * @breaking-change 10.0.0
                */
               @Optional() @Inject(MAT_DRAWER_CONTAINER) public _container?: MatDrawerContainer) {
 
+    this._document = _document;
     this.openedChange.subscribe((opened: boolean) => {
       if (opened) {
-        if (this._doc) {
-          this._elementFocusedBeforeDrawerWasOpened = this._doc.activeElement as HTMLElement;
+        if (this._document) {
+          this._elementFocusedBeforeDrawerWasOpened = this._document.activeElement as HTMLElement;
         }
 
         this._takeFocus();
@@ -347,7 +364,7 @@ export class MatDrawer implements AfterContentInit, AfterContentChecked, OnDestr
       return;
     }
 
-    const activeEl = this._doc && this._doc.activeElement;
+    const activeEl = this._document && this._document.activeElement;
 
     if (activeEl && this._elementRef.nativeElement.contains(activeEl)) {
       if (this._elementFocusedBeforeDrawerWasOpened instanceof HTMLElement) {
@@ -361,9 +378,20 @@ export class MatDrawer implements AfterContentInit, AfterContentChecked, OnDestr
     this._openedVia = null;
   }
 
-  ngAfterContentInit() {
-    this._focusTrap = this._focusTrapFactory.create(this._elementRef.nativeElement);
+  ngAfterViewInit() {
+    this._isAttached = true;
+
+    // Note that we attach the focus trap to the content element, rather than the component host
+    // so that we can move the host to a different place in the DOM without leaving the focus trap
+    // anchors behind.
+    this._focusTrap = this._focusTrapFactory.create(this._content.nativeElement);
     this._updateFocusTrapState();
+
+    // Only update the DOM position when the sidenav is positioned at
+    // the end since we project the sidenav before the content by default.
+    if (this._position === 'end') {
+      this._updatePositionInParent('end');
+    }
   }
 
   ngAfterContentChecked() {
@@ -381,6 +409,11 @@ export class MatDrawer implements AfterContentInit, AfterContentChecked, OnDestr
       this._focusTrap.destroy();
     }
 
+    if (this._anchor && this._anchor.parentNode) {
+      this._anchor.parentNode.removeChild(this._anchor);
+    }
+
+    this._anchor = null;
     this._animationStarted.complete();
     this._animationEnd.complete();
     this._modeChanged.complete();
@@ -437,6 +470,28 @@ export class MatDrawer implements AfterContentInit, AfterContentChecked, OnDestr
     if (this._focusTrap) {
       // The focus trap is only enabled when the drawer is open in any mode other than side.
       this._focusTrap.enabled = this.opened && this.mode !== 'side';
+    }
+  }
+
+  /**
+   * Updates the position of the drawer in the DOM. We need to move the element around ourselves
+   * when it's in the `end` position so that it comes after the content and the visual order
+   * matches the tab order. We also need to be able to move it back to `start` if the sidenav
+   * started off as `end` and was changed to `start`.
+   */
+  private _updatePositionInParent(newPosition: 'start' | 'end') {
+    const element = this._elementRef.nativeElement;
+    const parent = element.parentNode!;
+
+    if (newPosition === 'end') {
+      if (!this._anchor) {
+        this._anchor = this._document.createComment('mat-drawer-anchor');
+        parent.insertBefore(this._anchor, element);
+      }
+
+      parent.appendChild(element);
+    } else if (this._anchor) {
+      this._anchor.parentNode!.insertBefore(element, this._anchor);
     }
   }
 
