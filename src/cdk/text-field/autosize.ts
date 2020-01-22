@@ -32,10 +32,11 @@ import {fromEvent, Subject} from 'rxjs';
   selector: 'textarea[cdkTextareaAutosize]',
   exportAs: 'cdkTextareaAutosize',
   host: {
-    'class': 'cdk-textarea-autosize',
+    // Remove the class when disabled, because it removes the native browser resizing.
+    '[class.cdk-textarea-autosize]': 'enabled',
     // Textarea elements that have the directive applied should have a single row by default.
     // Browsers normally show two rows by default and therefore this limits the minRows binding.
-    'rows': '1',
+    '[attr.rows]': 'enabled ? 1 : null',
   },
 })
 export class CdkTextareaAutosize implements AfterViewInit, DoCheck, OnDestroy {
