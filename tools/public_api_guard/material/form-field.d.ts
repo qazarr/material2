@@ -53,7 +53,7 @@ export declare class MatFormField extends _MatFormFieldMixinBase implements Afte
     _hasLabel(): boolean;
     _hasPlaceholder(): boolean;
     _hideControlPlaceholder(): boolean;
-    _shouldForward(prop: keyof NgControl): boolean;
+    _shouldForward(prop: keyof AbstractControlDirective): boolean;
     _shouldLabelFloat(): boolean;
     protected _validateControlChild(): void;
     getConnectedOverlayOrigin(): ElementRef;
@@ -81,7 +81,7 @@ export declare abstract class MatFormFieldControl<T> {
     readonly errorState: boolean;
     readonly focused: boolean;
     readonly id: string;
-    readonly ngControl: NgControl | null;
+    readonly ngControl: NgControl | AbstractControlDirective | null;
     readonly placeholder: string;
     readonly required: boolean;
     readonly shouldLabelFloat: boolean;
