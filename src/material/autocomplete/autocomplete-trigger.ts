@@ -116,7 +116,6 @@ export function getMatAutocompleteMissingPanelError(): Error {
     // Note: we use `focusin`, as opposed to `focus`, in order to open the panel
     // a little earlier. This avoids issues where IE delays the focusing of the input.
     '(focusin)': '_handleFocus()',
-    '(blur)': '_onTouched()',
     '(input)': '_handleInput($event)',
     '(keydown)': '_handleKeydown($event)',
   },
@@ -604,6 +603,7 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
     }
 
     this.closePanel();
+    this._onTouched();
   }
 
   /**
