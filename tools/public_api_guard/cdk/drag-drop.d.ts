@@ -163,6 +163,7 @@ export declare class CdkDropList<T = any> implements AfterContentInit, OnDestroy
     constructor(
     element: ElementRef<HTMLElement>, dragDrop: DragDrop, _changeDetectorRef: ChangeDetectorRef, _dir?: Directionality | undefined, _group?: CdkDropListGroup<CdkDropList<any>> | undefined,
     _scrollDispatcher?: ScrollDispatcher | undefined, config?: DragDropConfig);
+    _itemAdded(item: CdkDrag): void;
     drop(item: CdkDrag, currentIndex: number, previousContainer: CdkDropList, isPointerOverContainer: boolean): void;
     enter(item: CdkDrag, pointerX: number, pointerY: number): void;
     exit(item: CdkDrag): void;

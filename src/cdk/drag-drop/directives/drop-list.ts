@@ -21,6 +21,7 @@ import {
   SkipSelf,
   AfterContentInit,
   Inject,
+  NgZone,
 } from '@angular/core';
 import {Directionality} from '@angular/cdk/bidi';
 import {ScrollDispatcher} from '@angular/cdk/scrolling';
@@ -67,6 +68,18 @@ export class CdkDropList<T = any> implements AfterContentInit, OnDestroy {
 
   /** Keeps track of the drop lists that are currently on the page. */
   private static _dropLists: CdkDropList[] = [];
+
+  /**
+   * In some cases (mainly transplanted views with OnPush, see #18341) we may end up in a situation
+   * where there are no items on the first change detection pass, but the items get picked up as
+   * soon as the user triggers another pass by dragging. This is a problem, because the item would
+   * have to switch from standalone mode to drag mode in the middle of the dragging sequence which
+   * is too late since the two modes save different kinds of information. We can detect when the
+   * app is in this state by checking whether an item found the list via DI, but isn't part of the
+   * `_draggables` list. When that happens we need to trigger another change detection pass so that
+   * it gets picked up. We use this flag to ensure the extra pass doesn't happen more than once.
+   */
+  private _hasVerifiedItemState: boolean;
 
   /** Reference to the underlying drop list instance. */
   _dropListRef: DropListRef<CdkDropList<T>>;
@@ -273,6 +286,17 @@ export class CdkDropList<T = any> implements AfterContentInit, OnDestroy {
    */
   getItemIndex(item: CdkDrag): number {
     return this._dropListRef.getItemIndex(item._dragRef);
+  }
+
+  /** Used by the drag items to notify the list that they've been created. */
+  _itemAdded(item: CdkDrag) {
+    if (!this._hasVerifiedItemState) {
+      this._hasVerifiedItemState = true;
+
+      if (this._draggables && this._draggables.toArray().indexOf(item) === -1) {
+        Promise.resolve().then(() => this._changeDetectorRef.markForCheck());
+      }
+    }
   }
 
   /** Syncs the inputs of the CdkDropList with the options of the underlying DropListRef. */

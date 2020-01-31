@@ -3624,6 +3624,18 @@ describe('CdkDrag', () => {
       expect(styles.scrollSnapType || styles.msScrollSnapType).toBe('block');
     }));
 
+    it('should notify the drop list when an item has been added', fakeAsync(() => {
+      const fixture = createComponent(DraggableInDropZone);
+      fixture.detectChanges();
+      const list = fixture.componentInstance.dropInstance;
+      spyOn(list, '_itemAdded');
+
+      fixture.componentInstance.items.push({value: 'extra', height: ITEM_HEIGHT, margin: 0});
+      fixture.detectChanges();
+
+      expect(list._itemAdded).toHaveBeenCalled();
+    }));
+
   });
 
   describe('in a connected drop container', () => {

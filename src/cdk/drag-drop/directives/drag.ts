@@ -206,6 +206,10 @@ export class CdkDrag<T = any> implements AfterViewInit, OnChanges, OnDestroy {
       this._assignDefaults(config);
     }
 
+    if (dropContainer) {
+      dropContainer._itemAdded(this);
+    }
+
     this._syncInputs(this._dragRef);
     this._handleEvents(this._dragRef);
   }
