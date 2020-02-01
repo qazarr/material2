@@ -21,6 +21,10 @@ $mat-stepper-line-gap: 8px !default;
   .mat-stepper-label-position-bottom & {
     align-items: flex-start;
   }
+
+  .mat-stepper-header-position-bottom & {
+    order: 1;
+  }
 }
 
 .mat-stepper-horizontal-line {
@@ -124,6 +128,11 @@ $mat-stepper-line-gap: 8px !default;
   }
 }
 
+.mat-horizontal-stepper-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
 .mat-horizontal-stepper-content {
   outline: 0;
 
@@ -136,6 +145,10 @@ $mat-stepper-line-gap: 8px !default;
 .mat-horizontal-content-container {
   overflow: hidden;
   padding: 0 $mat-stepper-side-gap $mat-stepper-side-gap $mat-stepper-side-gap;
+
+  .mat-stepper-header-position-bottom & {
+    padding: $mat-stepper-side-gap $mat-stepper-side-gap 0 $mat-stepper-side-gap;
+  }
 }
 
 .mat-vertical-content-container {
