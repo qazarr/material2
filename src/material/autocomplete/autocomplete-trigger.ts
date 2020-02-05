@@ -45,9 +45,10 @@ import {
   MatOption,
   MatOptionSelectionChange,
 } from '@angular/material/core';
+import {FocusMonitor} from '@angular/cdk/a11y';
 import {MatFormField} from '@angular/material/form-field';
 import {defer, fromEvent, merge, Observable, of as observableOf, Subject, Subscription} from 'rxjs';
-import {delay, filter, map, switchMap, take, tap} from 'rxjs/operators';
+import {delay, filter, map, switchMap, take, tap, pairwise} from 'rxjs/operators';
 
 import {MatAutocomplete} from './autocomplete';
 import {MatAutocompleteOrigin} from './autocomplete-origin';
@@ -220,8 +221,11 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
               @Optional() @Host() private _formField: MatFormField,
               @Optional() @Inject(DOCUMENT) private _document: any,
               // @breaking-change 8.0.0 Make `_viewportRuler` required.
-              private _viewportRuler?: ViewportRuler) {
+              private _viewportRuler?: ViewportRuler,
+              // @breaking-change 11.0.0 Make `_focusMonitor` required.
+              private _focusMonitor?: FocusMonitor) {
     this._scrollStrategy = scrollStrategy;
+    this._handleTouchBlur();
   }
 
   ngAfterViewInit() {
@@ -757,6 +761,27 @@ export class MatAutocompleteTrigger implements ControlValueAccessor, AfterViewIn
   private _canOpen(): boolean {
     const element = this._element.nativeElement;
     return !element.readOnly && !element.disabled && !this._autocompleteDisabled;
+  }
+
+  /** Handles the input being blurred on a touch device. */
+  private _handleTouchBlur() {
+    if (!this._focusMonitor) {
+      return;
+    }
+
+    // Note: super breaky, because monitoring adds a bunch of timeouts,
+    // even before we've reached the timeout below.
+    this._focusMonitor.monitor(this._element).pipe(pairwise()).subscribe(([previous, current]) => {
+      if (current === null && (previous === 'touch' || previous === 'program')) {
+        this._zone.runOutsideAngular(() => {
+          setTimeout(() => {
+            if (this._document.activeElement !== this._element.nativeElement) {
+              this._zone.run(() => this.closePanel());
+            }
+          }, 10);
+        });
+      }
+    });
   }
 
   static ngAcceptInputType_autocompleteDisabled: BooleanInput;
