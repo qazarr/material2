@@ -800,7 +800,17 @@ export class DropListRef<T = any> {
    * @param y Position of the item along the Y axis.
    */
   _getSiblingContainerFromPosition(item: DragRef, x: number, y: number): DropListRef | undefined {
-    return this._siblings.find(sibling => sibling._canReceive(item, x, y));
+    let candidate = this._siblings.find(sibling => sibling._canReceive(item, x, y));
+
+    // TODO: doesn't handle taking item from inner list to outer list to different inner list
+    // within the same drag sequence.
+    if (candidate && this._canReceive(item, x, y)) {
+      if (coerceElement(candidate.element).contains(coerceElement(this.element))) {
+        candidate = this;
+      }
+    }
+
+    return candidate;
   }
 
   /**
@@ -810,7 +820,7 @@ export class DropListRef<T = any> {
    * @param y Position of the item along the Y axis.
    */
   _canReceive(item: DragRef, x: number, y: number): boolean {
-    if (!isInsideClientRect(this._clientRect, x, y) || !this.enterPredicate(item, this)) {
+    if (!this._isOverContainer(x, y) || !this.enterPredicate(item, this)) {
       return false;
     }
 
