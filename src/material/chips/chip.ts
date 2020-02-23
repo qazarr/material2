@@ -106,7 +106,7 @@ export class MatChipTrailingIcon {}
   host: {
     'class': 'mat-chip mat-focus-indicator',
     '[attr.tabindex]': 'disabled ? null : tabIndex',
-    'role': 'option',
+    '[attr.role]': 'role',
     '[class.mat-chip-selected]': 'selected',
     '[class.mat-chip-with-avatar]': 'avatar',
     '[class.mat-chip-with-trailing-icon]': 'trailingIcon || removeIcon',
@@ -173,6 +173,9 @@ export class MatChip extends _MatChipMixinBase implements FocusableOption, OnDes
 
   /** The chip's remove toggler. */
   @ContentChild(forwardRef(() => MatChipRemove)) removeIcon: MatChipRemove;
+
+  /** ARIA role that should be applied to the chip. */
+  @Input() role: string = 'option';
 
   /** Whether the chip is selected. */
   @Input()
