@@ -100,7 +100,7 @@ const _MatCheckboxMixinBase:
     CanDisableRippleCtor &
     CanDisableCtor &
     typeof MatCheckboxBase =
-        mixinTabIndex(mixinColor(mixinDisableRipple(mixinDisabled(MatCheckboxBase))));
+        mixinTabIndex(mixinColor(mixinDisableRipple(mixinDisabled(MatCheckboxBase)), 'accent'));
 
 
 /**

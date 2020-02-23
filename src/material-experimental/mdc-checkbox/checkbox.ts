@@ -59,9 +59,9 @@ export class MatCheckboxChange {
   host: {
     'class': 'mat-mdc-checkbox',
     '[attr.tabindex]': 'null',
-    '[class.mat-primary]': 'color == "primary"',
-    '[class.mat-accent]': 'color == "accent"',
-    '[class.mat-warn]': 'color == "warn"',
+    '[class.mat-primary]': 'color === "primary"',
+    '[class.mat-accent]': 'color !== "primary" && color !== "warn"',
+    '[class.mat-warn]': 'color === "warn"',
     '[class._mat-animation-noopable]': `_animationMode === 'NoopAnimations'`,
     '[class.mdc-checkbox--disabled]': 'disabled',
     '[id]': 'id',
