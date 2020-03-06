@@ -12,6 +12,7 @@ import {
   DataSource,
   ListRange,
   isDataSource,
+  DifferDataSource,
 } from '@angular/cdk/collections';
 import {
   Directive,
@@ -30,7 +31,7 @@ import {
   TrackByFunction,
   ViewContainerRef,
 } from '@angular/core';
-import {Observable, Subject, of as observableOf, isObservable} from 'rxjs';
+import {Observable, Subject, of as observableOf} from 'rxjs';
 import {pairwise, shareReplay, startWith, switchMap, takeUntil} from 'rxjs/operators';
 import {CdkVirtualScrollViewport} from './virtual-scroll-viewport';
 
@@ -81,6 +82,12 @@ export class CdkVirtualForOf<T> implements CollectionViewer, DoCheck, OnDestroy 
   /** Subject that emits when a new DataSource instance is given. */
   private _dataSourceChanges = new Subject<DataSource<T>>();
 
+  /**
+   * Current differ data source. Needs to be kept in a separate
+   * property so we can run change detection on it.
+   */
+  private _differDataSource: DifferDataSource<T> | null = null;
+
   /** The DataSource to display. */
   @Input()
   get cdkVirtualForOf(): DataSource<T> | Observable<T[]> | NgIterable<T> | null | undefined {
@@ -88,13 +95,19 @@ export class CdkVirtualForOf<T> implements CollectionViewer, DoCheck, OnDestroy 
   }
   set cdkVirtualForOf(value: DataSource<T> | Observable<T[]> | NgIterable<T> | null | undefined) {
     this._cdkVirtualForOf = value;
+
+    let dataSource: DataSource<T>;
+
     if (isDataSource(value)) {
-      this._dataSourceChanges.next(value);
+      dataSource = value;
+    } else if (Array.isArray(value)) {
+      this._differDataSource = dataSource =
+          new DifferDataSource(this._differs, value, this.cdkVirtualForTrackBy);
     } else {
-      // Slice the value if its an NgIterable to ensure we're working with an array.
-      this._dataSourceChanges.next(new ArrayDataSource<T>(
-          isObservable(value) ? value : Array.prototype.slice.call(value || [])));
+      dataSource = new ArrayDataSource<T>(value as T[] | Observable<T[]>);
     }
+
+    this._dataSourceChanges.next(dataSource);
   }
   _cdkVirtualForOf: DataSource<T> | Observable<T[]> | NgIterable<T> | null | undefined;
 
@@ -111,6 +124,10 @@ export class CdkVirtualForOf<T> implements CollectionViewer, DoCheck, OnDestroy 
     this._cdkVirtualForTrackBy = fn ?
         (index, item) => fn(index + (this._renderedRange ? this._renderedRange.start : 0), item) :
         undefined;
+
+    if (this._differDataSource) {
+      this._differDataSource.switchTrackBy(this._cdkVirtualForTrackBy);
+    }
   }
   private _cdkVirtualForTrackBy: TrackByFunction<T> | undefined;
 
@@ -223,6 +240,10 @@ export class CdkVirtualForOf<T> implements CollectionViewer, DoCheck, OnDestroy 
   }
 
   ngDoCheck() {
+    if (this._differDataSource) {
+      this._differDataSource.doCheck();
+    }
+
     if (this._differ && this._needsUpdate) {
       // TODO(mmalerba): We should differentiate needs update due to scrolling and a new portion of
       // this list being rendered (can use simpler algorithm) vs needs update due to data actually
@@ -270,6 +291,10 @@ export class CdkVirtualForOf<T> implements CollectionViewer, DoCheck, OnDestroy 
 
     if (oldDs) {
       oldDs.disconnect(this);
+
+      if (oldDs === this._differDataSource) {
+        this._differDataSource = null;
+      }
     }
 
     this._needsUpdate = true;
