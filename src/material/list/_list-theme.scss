@@ -20,10 +20,11 @@
     .mat-subheader {
       color: mat-color($foreground, secondary-text);
     }
-  }
 
-  .mat-list-item-disabled {
-    background-color: mat-color($background, disabled-list-option);
+    .mat-list-item-disabled {
+      background-color: mat-color($background, disabled-list-option);
+      color: mat-color($foreground, disabled-text);
+    }
   }
 
   .mat-list-option,
