@@ -69,7 +69,7 @@ export class MatTableDataSource<T> extends DataSource<T> {
 
   /** Array of data that should be rendered by the table, where each object represents one row. */
   get data() { return this._data.value; }
-  set data(data: T[]) { this._data.next(data); }
+  set data(data: T[]) { this._data.next(Array.isArray(data) ? data : []); }
 
   /**
    * Filter term that should be used to filter out objects from the data array. To override how
