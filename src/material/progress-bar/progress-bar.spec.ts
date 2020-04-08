@@ -183,6 +183,41 @@ describe('MatProgressBar', () => {
             .toBe(false, 'Expect aria-valuenow to be cleared in query mode.');
       });
 
+      it('should update the DOM transform when the value has changed', () => {
+        const fixture = createComponent(BasicProgressBar);
+        fixture.detectChanges();
+
+        const progressElement = fixture.debugElement.query(By.css('mat-progress-bar'))!;
+        const progressComponent = progressElement.componentInstance;
+        const primaryBar = progressElement.nativeElement.querySelector('.mat-progress-bar-primary');
+
+        expect(primaryBar.style.transform).toBe('scaleX(0)');
+
+        progressComponent.value = 40;
+        fixture.detectChanges();
+
+        expect(primaryBar.style.transform).toBe('scaleX(0.4)');
+      });
+
+      it('should update the DOM transform when the bufferValue has changed', () => {
+        const fixture = createComponent(BasicProgressBar);
+        fixture.detectChanges();
+
+        const progressElement = fixture.debugElement.query(By.css('mat-progress-bar'))!;
+        const progressComponent = progressElement.componentInstance;
+        const bufferBar = progressElement.nativeElement.querySelector('.mat-progress-bar-buffer');
+
+        progressComponent.mode = 'buffer';
+        fixture.detectChanges();
+
+        expect(bufferBar.style.transform).toBeFalsy();
+
+        progressComponent.bufferValue = 40;
+        fixture.detectChanges();
+
+        expect(bufferBar.style.transform).toBe('scaleX(0.4)');
+      });
+
     });
 
     describe('animation trigger on determinate setting', () => {

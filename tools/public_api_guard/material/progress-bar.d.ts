@@ -16,7 +16,8 @@ export declare class MatProgressBar extends _MatProgressBarMixinBase implements 
     get value(): number;
     set value(v: number);
     constructor(_elementRef: ElementRef, _ngZone: NgZone, _animationMode?: string | undefined,
-    location?: MatProgressBarLocation);
+    location?: MatProgressBarLocation,
+    _changeDetectorRef?: ChangeDetectorRef | undefined);
     _bufferTransform(): {
         transform: string;
     } | null;
@@ -27,7 +28,7 @@ export declare class MatProgressBar extends _MatProgressBarMixinBase implements 
     ngOnDestroy(): void;
     static ngAcceptInputType_value: NumberInput;
     static ɵcmp: i0.ɵɵComponentDefWithMeta<MatProgressBar, "mat-progress-bar", ["matProgressBar"], { "color": "color"; "value": "value"; "bufferValue": "bufferValue"; "mode": "mode"; }, { "animationEnd": "animationEnd"; }, never, never>;
-    static ɵfac: i0.ɵɵFactoryDef<MatProgressBar, [null, null, { optional: true; }, { optional: true; }]>;
+    static ɵfac: i0.ɵɵFactoryDef<MatProgressBar, [null, null, { optional: true; }, { optional: true; }, null]>;
 }
 
 export interface MatProgressBarLocation {
