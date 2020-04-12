@@ -19,7 +19,6 @@ import {
   Directive,
   ElementRef,
   EventEmitter,
-  HostListener,
   Inject,
   Input,
   NgZone,
@@ -142,13 +141,11 @@ export class MatChip extends _MatChipMixinBase implements AfterContentInit, Afte
     /** Whether animations for the chip are enabled. */
   _animationsDisabled: boolean;
 
-  // We have to use a `HostListener` here in order to support both Ivy and ViewEngine.
-  // In Ivy the `host` bindings will be merged when this class is extended, whereas in
-  // ViewEngine they're overwritten.
-  // TODO(mmalerba): we move this back into `host` once Ivy is turned on by default.
-  // tslint:disable-next-line:no-host-decorator-in-concrete
-  @HostListener('transitionend', ['$event'])
-  _handleTransitionEnd(event: TransitionEvent) {
+  /**
+   * Event listener for `transitionend` events. Needs to be an arrow
+   * function so we can pass it easily into `addEventListener`.
+   */
+  private _handleTransitionEnd = (event: TransitionEvent) => {
     this._chipFoundation.handleTransitionEnd(event);
   }
 
@@ -334,7 +331,7 @@ export class MatChip extends _MatChipMixinBase implements AfterContentInit, Afte
 
   constructor(
       public _changeDetectorRef: ChangeDetectorRef,
-      readonly _elementRef: ElementRef, protected _ngZone: NgZone,
+      readonly _elementRef: ElementRef<HTMLElement>, protected _ngZone: NgZone,
       @Optional() private _dir: Directionality,
       // @breaking-change 8.0.0 `animationMode` parameter to become required.
       @Optional() @Inject(ANIMATION_MODULE_TYPE) animationMode?: string) {
@@ -343,6 +340,10 @@ export class MatChip extends _MatChipMixinBase implements AfterContentInit, Afte
     this._animationsDisabled = animationMode === 'NoopAnimations';
     this._isBasicChip = _elementRef.nativeElement.hasAttribute(this.basicChipAttrName) ||
                         _elementRef.nativeElement.tagName.toLowerCase() === this.basicChipAttrName;
+
+    _ngZone.runOutsideAngular(() => {
+      _elementRef.nativeElement.addEventListener('transitionend', this._handleTransitionEnd);
+    });
   }
 
   ngAfterContentInit() {
@@ -351,13 +352,15 @@ export class MatChip extends _MatChipMixinBase implements AfterContentInit, Afte
 
   ngAfterViewInit() {
     this._chipFoundation.init();
-    this._textElement = this._elementRef.nativeElement.querySelector('.mdc-chip__text');
+    this._textElement =
+        this._elementRef.nativeElement.querySelector('.mdc-chip__text') as HTMLElement;
   }
 
   ngOnDestroy() {
     this.destroyed.emit({chip: this});
     this._destroyed.next();
     this._destroyed.complete();
+    this._elementRef.nativeElement.removeEventListener('transitionend', this._handleTransitionEnd);
     this._chipFoundation.destroy();
   }
 
