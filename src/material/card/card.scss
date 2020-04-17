@@ -103,7 +103,17 @@ $mat-card-header-size: 40px !default;
 }
 
 .mat-card-header-text {
-  margin: 0 $mat-card-padding;
+  &:not(:first-child) {
+    margin-left: $mat-card-padding;
+  }
+
+  [dir='rtl'] & {
+    margin-left: 0;
+
+    &:not(:first-child) {
+      margin-right: $mat-card-padding;
+    }
+  }
 }
 
 .mat-card-avatar {
