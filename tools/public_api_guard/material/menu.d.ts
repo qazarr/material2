@@ -98,25 +98,26 @@ export interface MatMenuDefaultOptions {
     yPosition: MenuPositionY;
 }
 
-export declare class MatMenuItem extends _MatMenuItemMixinBase implements FocusableOption, CanDisable, CanDisableRipple, OnDestroy {
+export declare class MatMenuItem extends _MatMenuItemMixinBase implements FocusableOption, CanDisable, CanDisableRipple, AfterViewInit, OnDestroy {
+    _content: ElementRef<HTMLElement> | undefined;
     readonly _focused: Subject<MatMenuItem>;
     _highlighted: boolean;
     readonly _hovered: Subject<MatMenuItem>;
     _parentMenu?: MatMenuPanel<MatMenuItem> | undefined;
     _triggersSubmenu: boolean;
     role: 'menuitem' | 'menuitemradio' | 'menuitemcheckbox';
-    constructor(_elementRef: ElementRef<HTMLElement>, document?: any, _focusMonitor?: FocusMonitor | undefined, _parentMenu?: MatMenuPanel<MatMenuItem> | undefined);
-    _checkDisabled(event: Event): void;
+    constructor(_elementRef: ElementRef<HTMLElement>, document?: any, _focusMonitor?: FocusMonitor | undefined, _parentMenu?: MatMenuPanel<MatMenuItem> | undefined, _ngZone?: NgZone | undefined);
     _getHostElement(): HTMLElement;
     _getTabIndex(): string;
     _handleMouseEnter(): void;
     focus(origin?: FocusOrigin, options?: FocusOptions): void;
     getLabel(): string;
+    ngAfterViewInit(): void;
     ngOnDestroy(): void;
     static ngAcceptInputType_disableRipple: BooleanInput;
     static ngAcceptInputType_disabled: BooleanInput;
     static ɵcmp: i0.ɵɵComponentDefWithMeta<MatMenuItem, "[mat-menu-item]", ["matMenuItem"], { "disabled": "disabled"; "disableRipple": "disableRipple"; "role": "role"; }, {}, never, ["*"]>;
-    static ɵfac: i0.ɵɵFactoryDef<MatMenuItem, [null, null, null, { optional: true; }]>;
+    static ɵfac: i0.ɵɵFactoryDef<MatMenuItem, [null, null, null, { optional: true; }, null]>;
 }
 
 export declare class MatMenuModule {
