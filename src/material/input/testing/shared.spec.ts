@@ -2,7 +2,7 @@ import {HarnessLoader} from '@angular/cdk/testing';
 import {TestbedHarnessEnvironment} from '@angular/cdk/testing/testbed';
 import {Component} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {MatInputHarness} from './input-harness';
@@ -16,7 +16,7 @@ export function runHarnessTests(
   beforeEach(async () => {
     await TestBed
         .configureTestingModule({
-          imports: [NoopAnimationsModule, inputModule, ReactiveFormsModule],
+          imports: [NoopAnimationsModule, inputModule, FormsModule],
           declarations: [InputHarnessTest],
         })
         .compileComponents();
@@ -28,7 +28,7 @@ export function runHarnessTests(
 
   it('should load all input harnesses', async () => {
     const inputs = await loader.getAllHarnesses(inputHarness);
-    expect(inputs.length).toBe(5);
+    expect(inputs.length).toBe(6);
   });
 
   it('should load input with specific id', async () => {
@@ -49,37 +49,40 @@ export function runHarnessTests(
 
   it('should be able to get id of input', async () => {
     const inputs = await loader.getAllHarnesses(inputHarness);
-    expect(inputs.length).toBe(5);
+    expect(inputs.length).toBe(6);
     expect(await inputs[0].getId()).toMatch(/mat-input-\d+/);
     expect(await inputs[1].getId()).toMatch(/mat-input-\d+/);
     expect(await inputs[2].getId()).toBe('myTextarea');
     expect(await inputs[3].getId()).toBe('nativeControl');
     expect(await inputs[4].getId()).toMatch(/mat-input-\d+/);
+    expect(await inputs[5].getId()).toBe('has-ng-model');
   });
 
   it('should be able to get name of input', async () => {
     const inputs = await loader.getAllHarnesses(inputHarness);
-    expect(inputs.length).toBe(5);
+    expect(inputs.length).toBe(6);
     expect(await inputs[0].getName()).toBe('favorite-food');
     expect(await inputs[1].getName()).toBe('');
     expect(await inputs[2].getName()).toBe('');
     expect(await inputs[3].getName()).toBe('');
     expect(await inputs[4].getName()).toBe('');
+    expect(await inputs[5].getName()).toBe('has-ng-model');
   });
 
   it('should be able to get value of input', async () => {
     const inputs = await loader.getAllHarnesses(inputHarness);
-    expect(inputs.length).toBe(5);
+    expect(inputs.length).toBe(6);
     expect(await inputs[0].getValue()).toBe('Sushi');
     expect(await inputs[1].getValue()).toBe('');
     expect(await inputs[2].getValue()).toBe('');
     expect(await inputs[3].getValue()).toBe('');
     expect(await inputs[4].getValue()).toBe('');
+    expect(await inputs[5].getValue()).toBe('');
   });
 
   it('should be able to set value of input', async () => {
     const inputs = await loader.getAllHarnesses(inputHarness);
-    expect(inputs.length).toBe(5);
+    expect(inputs.length).toBe(6);
     expect(await inputs[0].getValue()).toBe('Sushi');
     expect(await inputs[1].getValue()).toBe('');
     expect(await inputs[3].getValue()).toBe('');
@@ -98,13 +101,14 @@ export function runHarnessTests(
 
   it('should be able to get disabled state', async () => {
     const inputs = await loader.getAllHarnesses(inputHarness);
-    expect(inputs.length).toBe(5);
+    expect(inputs.length).toBe(6);
 
     expect(await inputs[0].isDisabled()).toBe(false);
     expect(await inputs[1].isDisabled()).toBe(false);
     expect(await inputs[2].isDisabled()).toBe(false);
     expect(await inputs[3].isDisabled()).toBe(false);
     expect(await inputs[4].isDisabled()).toBe(false);
+    expect(await inputs[5].isDisabled()).toBe(false);
 
     fixture.componentInstance.disabled = true;
 
@@ -113,13 +117,14 @@ export function runHarnessTests(
 
   it('should be able to get readonly state', async () => {
     const inputs = await loader.getAllHarnesses(inputHarness);
-    expect(inputs.length).toBe(5);
+    expect(inputs.length).toBe(6);
 
     expect(await inputs[0].isReadonly()).toBe(false);
     expect(await inputs[1].isReadonly()).toBe(false);
     expect(await inputs[2].isReadonly()).toBe(false);
     expect(await inputs[3].isReadonly()).toBe(false);
     expect(await inputs[4].isReadonly()).toBe(false);
+    expect(await inputs[5].isReadonly()).toBe(false);
 
     fixture.componentInstance.readonly = true;
 
@@ -128,13 +133,14 @@ export function runHarnessTests(
 
   it('should be able to get required state', async () => {
     const inputs = await loader.getAllHarnesses(inputHarness);
-    expect(inputs.length).toBe(5);
+    expect(inputs.length).toBe(6);
 
     expect(await inputs[0].isRequired()).toBe(false);
     expect(await inputs[1].isRequired()).toBe(false);
     expect(await inputs[2].isRequired()).toBe(false);
     expect(await inputs[3].isRequired()).toBe(false);
     expect(await inputs[4].isRequired()).toBe(false);
+    expect(await inputs[5].isRequired()).toBe(false);
 
     fixture.componentInstance.required = true;
 
@@ -143,22 +149,24 @@ export function runHarnessTests(
 
   it('should be able to get placeholder of input', async () => {
     const inputs = await loader.getAllHarnesses(inputHarness);
-    expect(inputs.length).toBe(5);
+    expect(inputs.length).toBe(6);
     expect(await inputs[0].getPlaceholder()).toBe('Favorite food');
     expect(await inputs[1].getPlaceholder()).toBe('');
     expect(await inputs[2].getPlaceholder()).toBe('Leave a comment');
     expect(await inputs[3].getPlaceholder()).toBe('Native control');
     expect(await inputs[4].getPlaceholder()).toBe('');
+    expect(await inputs[5].getPlaceholder()).toBe('');
   });
 
   it('should be able to get type of input', async () => {
     const inputs = await loader.getAllHarnesses(inputHarness);
-    expect(inputs.length).toBe(5);
+    expect(inputs.length).toBe(6);
     expect(await inputs[0].getType()).toBe('text');
     expect(await inputs[1].getType()).toBe('number');
     expect(await inputs[2].getType()).toBe('textarea');
     expect(await inputs[3].getType()).toBe('text');
     expect(await inputs[4].getType()).toBe('textarea');
+    expect(await inputs[5].getType()).toBe('text');
 
     fixture.componentInstance.inputType = 'text';
 
@@ -220,6 +228,10 @@ function getActiveElementTagName() {
         <option value="first">First</option>
       </select>
     </mat-form-field>
+
+    <mat-form-field>
+      <input [(ngModel)]="ngModelValue" [name]="ngModelName" id="has-ng-model" matNativeControl>
+    </mat-form-field>
   `
 })
 class InputHarnessTest {
@@ -227,4 +239,6 @@ class InputHarnessTest {
   readonly = false;
   disabled = false;
   required = false;
+  ngModelValue = '';
+  ngModelName = 'has-ng-model';
 }

@@ -31,6 +31,7 @@ import {MatInput as BaseMatInput} from '@angular/material/input';
     '[id]': 'id',
     '[disabled]': 'disabled',
     '[required]': 'required',
+    '[attr.name]': 'name',
     '[attr.placeholder]': 'placeholder',
     '[attr.readonly]': 'readonly && !_isNativeSelect || null',
     '[attr.aria-describedby]': '_ariaDescribedby || null',

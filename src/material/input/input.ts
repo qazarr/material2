@@ -80,6 +80,7 @@ const _MatInputMixinBase: CanUpdateErrorStateCtor & typeof MatInputBase =
     '[attr.placeholder]': 'placeholder',
     '[disabled]': 'disabled',
     '[required]': 'required',
+    '[attr.name]': 'name || null',
     '[attr.readonly]': 'readonly && !_isNativeSelect || null',
     '[attr.aria-describedby]': '_ariaDescribedby || null',
     '[attr.aria-invalid]': 'errorState',
@@ -162,6 +163,12 @@ export class MatInput extends _MatInputMixinBase implements MatFormFieldControl<
    * @docs-private
    */
   @Input() placeholder: string;
+
+  /**
+   * Name of the input.
+   * @docs-private
+   */
+  @Input() name: string;
 
   /**
    * Implemented as part of MatFormFieldControl.
