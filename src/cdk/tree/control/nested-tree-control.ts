@@ -5,15 +5,16 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import {Observable, isObservable} from 'rxjs';
+import {isObservable} from 'rxjs';
 import {take, filter} from 'rxjs/operators';
 import {BaseTreeControl} from './base-tree-control';
+import {GetChildrenFn} from './types';
 
 /** Nested tree control. Able to expand/collapse a subtree recursively for NestedNode type. */
 export class NestedTreeControl<T> extends BaseTreeControl<T> {
 
   /** Construct with nested tree function getChildren. */
-  constructor(public getChildren: (dataNode: T) => (Observable<T[]> | T[] | undefined | null)) {
+  constructor(public getChildren: GetChildrenFn<T>) {
     super();
   }
 
