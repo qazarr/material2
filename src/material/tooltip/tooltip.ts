@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import {AnimationEvent} from '@angular/animations';
 import {AriaDescriber, FocusMonitor} from '@angular/cdk/a11y';
 import {Directionality} from '@angular/cdk/bidi';
 import {BooleanInput, coerceBooleanProperty, NumberInput} from '@angular/cdk/coercion';
@@ -39,11 +38,11 @@ import {
   ViewContainerRef,
   ViewEncapsulation,
   AfterViewInit,
+  ViewChild,
 } from '@angular/core';
+import {ANIMATION_MODULE_TYPE} from '@angular/platform-browser/animations';
 import {Observable, Subject} from 'rxjs';
 import {take, takeUntil} from 'rxjs/operators';
-
-import {matTooltipAnimations} from './tooltip-animations';
 
 
 /** Possible positions for a tooltip. */
@@ -285,7 +284,7 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
         if (!origin) {
           this._ngZone.run(() => this.hide(0));
         } else if (origin === 'keyboard') {
-          this._ngZone.run(() => this.show());
+          this._ngZone.run(() => this._show(true));
         }
     });
   }
@@ -319,21 +318,7 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
 
   /** Shows the tooltip after the delay in ms, defaults to tooltip-delay-show or 0ms if no input */
   show(delay: number = this.showDelay): void {
-    if (this.disabled || !this.message || (this._isTooltipVisible() &&
-      !this._tooltipInstance!._showTimeoutId && !this._tooltipInstance!._hideTimeoutId)) {
-        return;
-    }
-
-    const overlayRef = this._createOverlay();
-    this._detach();
-    this._portal = this._portal || new ComponentPortal(TooltipComponent, this._viewContainerRef);
-    this._tooltipInstance = overlayRef.attach(this._portal).instance;
-    this._tooltipInstance.afterHidden()
-      .pipe(takeUntil(this._destroyed))
-      .subscribe(() => this._detach());
-    this._setTooltipClass(this._tooltipClass);
-    this._updateTooltipMessage();
-    this._tooltipInstance!.show(delay);
+    this._show(false, delay);
   }
 
   /** Hides the tooltip after the delay in ms, defaults to tooltip-delay-hide or 0ms if no input */
@@ -345,7 +330,7 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
 
   /** Shows/hides the tooltip */
   toggle(): void {
-    this._isTooltipVisible() ? this.hide() : this.show();
+    this._isTooltipVisible() ? this.hide() : this._show(false);
   }
 
   /** Returns true if the tooltip is currently visible to the user */
@@ -547,7 +532,7 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
     // first tap from firing its click event or can cause the tooltip to open for clicks.
     if (!this._platform.IOS && !this._platform.ANDROID) {
       this._passiveListeners
-        .set('mouseenter', () => this.show())
+        .set('mouseenter', () => this._show(true))
         .set('mouseleave', () => this.hide());
     } else if (this.touchGestures !== 'off') {
       this._disableNativeGesturesIfNecessary();
@@ -563,7 +548,7 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
           // Note that it's important that we don't `preventDefault` here,
           // because it can prevent click events from firing on the element.
           clearTimeout(this._touchstartTimeout);
-          this._touchstartTimeout = setTimeout(() => this.show(), LONGPRESS_DELAY);
+          this._touchstartTimeout = setTimeout(() => this._show(true), LONGPRESS_DELAY);
         });
     }
 
@@ -597,6 +582,33 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
     }
   }
 
+  /**
+   * Attaches the tooltip to the DOM and shows it.
+   * @param isUserInteraction Whether the showing was triggered by a user interaction or
+   *    programmatically. We have to know this in order to figure out whether clicking outside
+   *    show hide the tooltip.
+   * @param delay Time in milliseconds to wait for showing the tooltip.
+   */
+  private _show(isUserInteraction: boolean, delay = this.showDelay) {
+    if (this.disabled || !this.message || (this._isTooltipVisible() &&
+      !this._tooltipInstance!._showTimeoutId && !this._tooltipInstance!._hideTimeoutId)) {
+        return;
+    }
+
+    const overlayRef = this._createOverlay();
+
+    this._detach();
+    this._portal = this._portal || new ComponentPortal(TooltipComponent, this._viewContainerRef);
+    this._tooltipInstance = overlayRef.attach(this._portal).instance;
+    this._tooltipInstance.afterHidden()
+      .pipe(takeUntil(this._destroyed))
+      .subscribe(() => this._detach());
+    this._setTooltipClass(this._tooltipClass);
+    this._updateTooltipMessage();
+    this._tooltipInstance!.show(delay, isUserInteraction);
+
+  }
+
   static ngAcceptInputType_disabled: BooleanInput;
   static ngAcceptInputType_hideDelay: NumberInput;
   static ngAcceptInputType_showDelay: NumberInput;
@@ -612,12 +624,11 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
   styleUrls: ['tooltip.css'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [matTooltipAnimations.tooltipState],
   host: {
     // Forces the element to have a layout in IE and Edge. This fixes issues where the element
     // won't be rendered if the animations are disabled or there is no web animations polyfill.
-    '[style.zoom]': '_visibility === "visible" ? 1 : null',
-    '(body:click)': 'this._handleBodyInteraction()',
+    '[style.zoom]': 'isVisible() ? 1 : null',
+    '(body:click)': '_handleBodyInteraction()',
     'aria-hidden': 'true',
   }
 })
@@ -634,27 +645,35 @@ export class TooltipComponent implements OnDestroy {
   /** The timeout ID of any current timer set to hide the tooltip */
   _hideTimeoutId: number | null;
 
-  /** Property watched by the animation framework to show or hide the tooltip */
-  _visibility: TooltipVisibility = 'initial';
-
   /** Whether interactions on the page should close the tooltip */
-  private _closeOnInteraction: boolean = false;
+  private _closeOnInteraction = false;
+
+  /** Whether the tooltip is currently visible. */
+  private _isVisible = false;
 
   /** Subject for notifying that the tooltip has been hidden from the view */
-  private readonly _onHide: Subject<any> = new Subject();
+  private readonly _onHide = new Subject<void>();
 
   /** Stream that emits whether the user has a handset-sized display.  */
   _isHandset: Observable<BreakpointState> = this._breakpointObserver.observe(Breakpoints.Handset);
 
+  /** Reference to the internal tooltip element. */
+  @ViewChild('tooltip', {
+    // Use a static query here since we interact directly with
+    // the DOM which can happen before `ngAfterViewInit`.
+    static: true
+  }) _tooltip: ElementRef<HTMLElement>;
+
   constructor(
     private _changeDetectorRef: ChangeDetectorRef,
-    private _breakpointObserver: BreakpointObserver) {}
+    private _breakpointObserver: BreakpointObserver,
+    @Optional() @Inject(ANIMATION_MODULE_TYPE) public _animationMode?: string) {}
 
   /**
    * Shows the tooltip with an animation originating from the provided origin
    * @param delay Amount of milliseconds to the delay showing the tooltip.
    */
-  show(delay: number): void {
+  show(delay: number, isUserInteraction?: boolean): void {
     // Cancel the delayed hide if it is scheduled
     if (this._hideTimeoutId) {
       clearTimeout(this._hideTimeoutId);
@@ -662,14 +681,13 @@ export class TooltipComponent implements OnDestroy {
     }
 
     // Body interactions should cancel the tooltip if there is a delay in showing.
-    this._closeOnInteraction = true;
-    this._showTimeoutId = setTimeout(() => {
-      this._visibility = 'visible';
-      this._showTimeoutId = null;
+    if (isUserInteraction) {
+      this._closeOnInteraction = true;
+    }
 
-      // Mark for check so if any parent component has set the
-      // ChangeDetectionStrategy to OnPush it will be checked anyways
-      this._markForCheck();
+    this._showTimeoutId = setTimeout(() => {
+      this._toogleVisibility(true);
+      this._showTimeoutId = null;
     }, delay);
   }
 
@@ -685,12 +703,8 @@ export class TooltipComponent implements OnDestroy {
     }
 
     this._hideTimeoutId = setTimeout(() => {
-      this._visibility = 'hidden';
+      this._toogleVisibility(false);
       this._hideTimeoutId = null;
-
-      // Mark for check so if any parent component has set the
-      // ChangeDetectionStrategy to OnPush it will be checked anyways
-      this._markForCheck();
     }, delay);
   }
 
@@ -701,27 +715,11 @@ export class TooltipComponent implements OnDestroy {
 
   /** Whether the tooltip is being displayed. */
   isVisible(): boolean {
-    return this._visibility === 'visible';
+    return this._isVisible;
   }
 
   ngOnDestroy() {
     this._onHide.complete();
-  }
-
-  _animationStart() {
-    this._closeOnInteraction = false;
-  }
-
-  _animationDone(event: AnimationEvent): void {
-    const toState = event.toState as TooltipVisibility;
-
-    if (toState === 'hidden' && !this.isVisible()) {
-      this._onHide.next();
-    }
-
-    if (toState === 'visible' || toState === 'hidden') {
-      this._closeOnInteraction = true;
-    }
   }
 
   /**
@@ -742,5 +740,32 @@ export class TooltipComponent implements OnDestroy {
    */
   _markForCheck(): void {
     this._changeDetectorRef.markForCheck();
+  }
+
+  /** Event listener dispatched when an animation on the tooltip finishes. */
+  _animationEnd(event: AnimationEvent) {
+    const toVisible = event.animationName === 'mat-tooltip-show';
+    const toHidden = event.animationName === 'mat-tooltip-hide';
+
+    if (toHidden && !this.isVisible()) {
+      this._onHide.next();
+    }
+
+    if (toVisible || toHidden) {
+      this._closeOnInteraction = true;
+    }
+  }
+
+  /** Toggles the visibility of the tooltip element. */
+  private _toogleVisibility(isVisible: boolean) {
+    // We set the classes directly here ourselves so that toggling the tooltip state
+    // isn't bound by change detection. This allows us to hide it even if the
+    // view ref has been detached from the CD tree.
+    const classList = this._tooltip.nativeElement.classList;
+    const showClass = 'mat-tooltip-show';
+    const hideClass = 'mat-tooltip-hide';
+    classList.remove(isVisible ? hideClass : showClass);
+    classList.add(isVisible ? showClass : hideClass);
+    this._isVisible = isVisible;
   }
 }

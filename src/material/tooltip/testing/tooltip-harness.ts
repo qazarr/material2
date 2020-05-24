@@ -31,14 +31,13 @@ export class MatTooltipHarness extends ComponentHarness {
 
   /** Hides the tooltip. */
   async hide(): Promise<void> {
-    const host = await this.host();
-    await host.mouseAway();
-    await this.forceStabilize(); // Needed in order to flush the `hide` animation.
+    return (await this.host()).mouseAway();
   }
 
   /** Gets whether the tooltip is open. */
   async isOpen(): Promise<boolean> {
-    return !!(await this._optionalPanel());
+    const panel = await this._optionalPanel();
+    return !!panel && !(await panel.hasClass('mat-tooltip-hide'));
   }
 
   /** Gets a promise for the tooltip panel's text. */

@@ -76,26 +76,26 @@ export declare const SCROLL_THROTTLE_MS = 20;
 export declare const TOOLTIP_PANEL_CLASS = "mat-tooltip-panel";
 
 export declare class TooltipComponent implements OnDestroy {
+    _animationMode?: string | undefined;
     _hideTimeoutId: number | null;
     _isHandset: Observable<BreakpointState>;
     _showTimeoutId: number | null;
-    _visibility: TooltipVisibility;
+    _tooltip: ElementRef<HTMLElement>;
     message: string;
     tooltipClass: string | string[] | Set<string> | {
         [key: string]: any;
     };
-    constructor(_changeDetectorRef: ChangeDetectorRef, _breakpointObserver: BreakpointObserver);
-    _animationDone(event: AnimationEvent): void;
-    _animationStart(): void;
+    constructor(_changeDetectorRef: ChangeDetectorRef, _breakpointObserver: BreakpointObserver, _animationMode?: string | undefined);
+    _animationEnd(event: AnimationEvent): void;
     _handleBodyInteraction(): void;
     _markForCheck(): void;
     afterHidden(): Observable<void>;
     hide(delay: number): void;
     isVisible(): boolean;
     ngOnDestroy(): void;
-    show(delay: number): void;
+    show(delay: number, isUserInteraction?: boolean): void;
     static ɵcmp: i0.ɵɵComponentDefWithMeta<TooltipComponent, "mat-tooltip-component", never, {}, {}, never, never>;
-    static ɵfac: i0.ɵɵFactoryDef<TooltipComponent, never>;
+    static ɵfac: i0.ɵɵFactoryDef<TooltipComponent, [null, null, { optional: true; }]>;
 }
 
 export declare type TooltipPosition = 'left' | 'right' | 'above' | 'below' | 'before' | 'after';
