@@ -1385,7 +1385,7 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
    * @docs-private
    */
   get shouldLabelFloat(): boolean {
-    return this._panelOpen || !this.empty;
+    return this._panelOpen || !this.empty || (this._focused && !!this._placeholder);
   }
 
   static ngAcceptInputType_required: BooleanInput;
