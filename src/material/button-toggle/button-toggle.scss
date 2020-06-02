@@ -120,13 +120,12 @@ $mat-button-toggle-legacy-border-radius: 2px !default;
   opacity: 0;
   @include mat-fill;
 
-  .mat-button-toggle-checked & {
-    border-bottom: solid $mat-button-toggle-legacy-height;
-
-    // Changing the background color for the selected item won't be visible in high contrast mode.
-    // We fall back to using the overlay to draw a brighter, semi-transparent tint on top instead.
-    // It uses a border, because the browser will render it using a brighter color.
-    @include cdk-high-contrast(active, off) {
+  // Changing the background color for the selected item won't be visible in high contrast mode.
+  // We fall back to using the overlay to draw a brighter, semi-transparent tint on top instead.
+  // It uses a border, because the browser will render it using a brighter color.
+  @include cdk-high-contrast(active, off) {
+    .mat-button-toggle-checked & {
+      border-bottom: solid $mat-button-toggle-legacy-height;
       opacity: 0.5;
       height: 0;
     }

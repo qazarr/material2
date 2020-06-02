@@ -15,12 +15,14 @@
 
   .mat-button-toggle-standalone,
   .mat-button-toggle-group {
-    @include _mat-theme-elevation(2, $config);
+    @include _mat-theme-overridable-elevation(2, $config);
   }
 
   .mat-button-toggle-standalone.mat-button-toggle-appearance-standard,
   .mat-button-toggle-group-appearance-standard {
-    box-shadow: none;
+    &:not([class*='mat-elevation-z']) {
+      box-shadow: none;
+    }
   }
 
   .mat-button-toggle {
