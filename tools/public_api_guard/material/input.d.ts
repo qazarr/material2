@@ -4,7 +4,7 @@ export declare const MAT_INPUT_VALUE_ACCESSOR: InjectionToken<{
     value: any;
 }>;
 
-export declare class MatInput extends _MatInputMixinBase implements MatFormFieldControl<any>, OnChanges, OnDestroy, OnInit, DoCheck, CanUpdateErrorState {
+export declare class MatInput extends _MatInputMixinBase implements MatFormFieldControl<any>, OnChanges, OnDestroy, OnInit, DoCheck, AfterViewInit, CanUpdateErrorState {
     _ariaDescribedby: string;
     protected _disabled: boolean;
     protected _elementRef: ElementRef<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
@@ -40,14 +40,16 @@ export declare class MatInput extends _MatInputMixinBase implements MatFormField
     get value(): string;
     set value(value: string);
     constructor(_elementRef: ElementRef<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, _platform: Platform,
-    ngControl: NgControl, _parentForm: NgForm, _parentFormGroup: FormGroupDirective, _defaultErrorStateMatcher: ErrorStateMatcher, inputValueAccessor: any, _autofillMonitor: AutofillMonitor, ngZone: NgZone);
-    protected _dirtyCheckNativeValue(): void;
+    ngControl: NgControl, _parentForm: NgForm, _parentFormGroup: FormGroupDirective, _defaultErrorStateMatcher: ErrorStateMatcher, inputValueAccessor: any, _autofillMonitor: AutofillMonitor, ngZone: NgZone,
+    _changeDetectorRef?: ChangeDetectorRef | undefined);
+    protected _dirtyCheckNativeValue(): boolean;
     _focusChanged(isFocused: boolean): void;
     protected _isBadInput(): boolean;
     protected _isNeverEmpty(): boolean;
     _onInput(): void;
     protected _validateType(): void;
     focus(options?: FocusOptions): void;
+    ngAfterViewInit(): void;
     ngDoCheck(): void;
     ngOnChanges(): void;
     ngOnDestroy(): void;
@@ -59,7 +61,7 @@ export declare class MatInput extends _MatInputMixinBase implements MatFormField
     static ngAcceptInputType_required: BooleanInput;
     static ngAcceptInputType_value: any;
     static ɵdir: i0.ɵɵDirectiveDefWithMeta<MatInput, "input[matInput], textarea[matInput], select[matNativeControl],      input[matNativeControl], textarea[matNativeControl]", ["matInput"], { "disabled": "disabled"; "id": "id"; "placeholder": "placeholder"; "required": "required"; "type": "type"; "errorStateMatcher": "errorStateMatcher"; "value": "value"; "readonly": "readonly"; }, {}, never>;
-    static ɵfac: i0.ɵɵFactoryDef<MatInput, [null, null, { optional: true; self: true; }, { optional: true; }, { optional: true; }, null, { optional: true; self: true; }, null, null]>;
+    static ɵfac: i0.ɵɵFactoryDef<MatInput, [null, null, { optional: true; self: true; }, { optional: true; }, { optional: true; }, null, { optional: true; self: true; }, null, null, null]>;
 }
 
 export declare class MatInputModule {
