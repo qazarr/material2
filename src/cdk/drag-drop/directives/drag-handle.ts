@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {Directive, ElementRef, Inject, Optional, Input, OnDestroy} from '@angular/core';
+import {Directive, ElementRef, Inject, Optional, Input, OnDestroy, SkipSelf} from '@angular/core';
 import {BooleanInput, coerceBooleanProperty} from '@angular/cdk/coercion';
 import {Subject} from 'rxjs';
 import {CDK_DRAG_PARENT} from '../drag-parent';
@@ -37,7 +37,7 @@ export class CdkDragHandle implements OnDestroy {
 
   constructor(
     public element: ElementRef<HTMLElement>,
-    @Inject(CDK_DRAG_PARENT) @Optional() parentDrag?: any) {
+    @Inject(CDK_DRAG_PARENT) @Optional() @SkipSelf() parentDrag?: any) {
 
     this._parentDrag = parentDrag;
     toggleNativeDragInteractions(element.nativeElement, false);
