@@ -7,7 +7,13 @@
  */
 
 import {BooleanInput} from '@angular/cdk/coercion';
-import {ChangeDetectionStrategy, Component, Input, ViewEncapsulation} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  ViewEncapsulation,
+  Directive,
+} from '@angular/core';
 import {CanDisable, CanDisableCtor, mixinDisabled} from '../common-behaviors/disabled';
 
 
@@ -19,6 +25,18 @@ const _MatOptgroupMixinBase: CanDisableCtor & typeof MatOptgroupBase =
 
 // Counter for unique group ids.
 let _uniqueOptgroupIdCounter = 0;
+
+@Directive()
+// tslint:disable-next-line:class-name
+export class _MatOptgroupBase extends _MatOptgroupMixinBase implements CanDisable {
+  /** Label for the option group. */
+  @Input() label: string;
+
+  /** Unique id for the underlying label. */
+  _labelId: string = `mat-optgroup-label-${_uniqueOptgroupIdCounter++}`;
+
+  static ngAcceptInputType_disabled: BooleanInput;
+}
 
 /**
  * Component that is used to group instances of `mat-option`.
@@ -39,12 +57,5 @@ let _uniqueOptgroupIdCounter = 0;
     '[attr.aria-labelledby]': '_labelId',
   }
 })
-export class MatOptgroup extends _MatOptgroupMixinBase implements CanDisable {
-  /** Label for the option group. */
-  @Input() label: string;
-
-  /** Unique id for the underlying label. */
-  _labelId: string = `mat-optgroup-label-${_uniqueOptgroupIdCounter++}`;
-
-  static ngAcceptInputType_disabled: BooleanInput;
+export class MatOptgroup extends _MatOptgroupBase {
 }
