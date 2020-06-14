@@ -56,9 +56,9 @@ export interface MatDateRangeInputParent<D> {
   _endInput: MatDateRangeInputPartBase<D>;
   _groupDisabled: boolean;
   _ariaDescribedBy: string | null;
-  _ariaLabelledBy: string | null;
-  _handleChildValueChange: () => void;
-  _openDatepicker: () => void;
+  _getAriaLabelledby(): string | null;
+  _handleChildValueChange(): void;
+  _openDatepicker(): void;
 }
 
 /**
@@ -196,7 +196,7 @@ const _MatDateRangeInputBase:
     '(change)': '_onChange()',
     '(keydown)': '_onKeydown($event)',
     '[attr.id]': '_rangeInput.id',
-    '[attr.aria-labelledby]': '_rangeInput._ariaLabelledBy',
+    '[attr.aria-labelledby]': '_rangeInput._getAriaLabelledby()',
     '[attr.aria-describedby]': '_rangeInput._ariaDescribedBy',
     '[attr.aria-haspopup]': '_rangeInput.rangePicker ? "dialog" : null',
     '[attr.aria-owns]': '(_rangeInput.rangePicker?.opened && _rangeInput.rangePicker.id) || null',
@@ -277,7 +277,7 @@ export class MatStartDate<D> extends _MatDateRangeInputBase<D> implements CanUpd
     '(input)': '_onInput($event.target.value)',
     '(change)': '_onChange()',
     '(keydown)': '_onKeydown($event)',
-    '[attr.aria-labelledby]': '_rangeInput._ariaLabelledBy',
+    '[attr.aria-labelledby]': '_rangeInput._getAriaLabelledby()',
     '[attr.aria-describedby]': '_rangeInput._ariaDescribedBy',
     '[attr.aria-haspopup]': '_rangeInput.rangePicker ? "dialog" : null',
     '[attr.aria-owns]': '(_rangeInput.rangePicker?.opened && _rangeInput.rangePicker.id) || null',
