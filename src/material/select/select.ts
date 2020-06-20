@@ -66,8 +66,6 @@ import {ControlValueAccessor, FormGroupDirective, NgControl, NgForm} from '@angu
 import {
   _countGroupLabelsBeforeOption,
   _getOptionScrollPosition,
-  CanDisable,
-  CanDisableCtor,
   CanDisableRipple,
   CanDisableRippleCtor,
   CanUpdateErrorState,
@@ -79,7 +77,6 @@ import {
   MatOptgroup,
   MatOption,
   MatOptionSelectionChange,
-  mixinDisabled,
   mixinDisableRipple,
   mixinErrorState,
   mixinTabIndex,
@@ -182,6 +179,8 @@ export class MatSelectChange {
 // Boilerplate for applying mixins to MatSelect.
 /** @docs-private */
 class MatSelectBase {
+  disabled: boolean;
+
   constructor(public _elementRef: ElementRef,
               public _defaultErrorStateMatcher: ErrorStateMatcher,
               public _parentForm: NgForm,
@@ -189,12 +188,11 @@ class MatSelectBase {
               public ngControl: NgControl) {}
 }
 const _MatSelectMixinBase:
-    CanDisableCtor &
     HasTabIndexCtor &
-    CanDisableRippleCtor &
     CanUpdateErrorStateCtor &
+    CanDisableRippleCtor &
     typeof MatSelectBase =
-        mixinDisableRipple(mixinTabIndex(mixinDisabled(mixinErrorState(MatSelectBase))));
+        mixinDisableRipple(mixinTabIndex(mixinErrorState(MatSelectBase)));
 
 
 /**
@@ -211,7 +209,7 @@ export class MatSelectTrigger {}
   exportAs: 'matSelect',
   templateUrl: 'select.html',
   styleUrls: ['select.css'],
-  inputs: ['disabled', 'disableRipple', 'tabIndex'],
+  inputs: ['disableRipple', 'tabIndex'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -246,7 +244,7 @@ export class MatSelectTrigger {}
   ],
 })
 export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, OnChanges,
-    OnDestroy, OnInit, DoCheck, ControlValueAccessor, CanDisable, HasTabIndex,
+    OnDestroy, OnInit, DoCheck, ControlValueAccessor, HasTabIndex,
     MatFormFieldControl<any>, CanUpdateErrorState, CanDisableRipple {
   private _scrollStrategyFactory: () => ScrollStrategy;
 
@@ -435,6 +433,18 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     }
   }
   private _value: any;
+
+  /** Whether the select can be disabled. */
+  @Input()
+  get disabled(): boolean {
+    const control = this.ngControl;
+    return control && control.disabled !== null ? control.disabled : this._disabled;
+  }
+  set disabled(value: boolean) {
+    this._disabled = coerceBooleanProperty(value);
+  }
+  protected _disabled = false;
+
 
   /** Aria label of the select. If not specified, the placeholder will be used as label. */
   @Input('aria-label') ariaLabel: string = '';
