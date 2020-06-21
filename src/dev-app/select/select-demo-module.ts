@@ -18,9 +18,12 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {RouterModule} from '@angular/router';
 import {SelectDemo} from './select-demo';
+import {OverlayModule} from '@angular/cdk/overlay';
+import {NewSelect, NewOption} from './new-select';
 
 @NgModule({
   imports: [
+    OverlayModule,
     CommonModule,
     FormsModule,
     MatButtonModule,
@@ -33,7 +36,7 @@ import {SelectDemo} from './select-demo';
     ReactiveFormsModule,
     RouterModule.forChild([{path: '', component: SelectDemo}]),
   ],
-  declarations: [SelectDemo],
+  declarations: [SelectDemo, NewSelect, NewOption],
 })
 export class SelectDemoModule {
 }
