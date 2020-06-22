@@ -89,6 +89,13 @@ describe('MatDateRangeInput', () => {
     expect(fixture.componentInstance.end.nativeElement.getAttribute('type')).toBe('text');
   });
 
+  it('should set the correct role on the range input', () => {
+    const fixture = createComponent(StandardRangePicker);
+    fixture.detectChanges();
+    const rangeInput = fixture.nativeElement.querySelector('.mat-date-range-input');
+    expect(rangeInput.getAttribute('role')).toBe('group');
+  });
+
   it('should mark the entire range input as disabled if both inputs are disabled', () => {
     const fixture = createComponent(StandardRangePicker);
     fixture.detectChanges();

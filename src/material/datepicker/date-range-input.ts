@@ -47,6 +47,7 @@ let nextUniqueId = 0;
     'class': 'mat-date-range-input',
     '[class.mat-date-range-input-hide-placeholders]': '_shouldHidePlaceholders()',
     '[attr.id]': 'null',
+    'role': 'group',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
